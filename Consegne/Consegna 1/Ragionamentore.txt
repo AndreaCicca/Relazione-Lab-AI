@@ -8,20 +8,14 @@
 ᐅ Se sono presenti allora predo t e lo Aggiungo alla lista di condizioni iniziali e diventerebbe [p,q,-t,t]
 ᐅ Passo alla regola successiva e ripeto il processo.
 
-check_fwd(_,X,Y)= true if subset(Y,X)
-check_fwd(_,X,Y) = true if anyMember(orList(Y), X)
+check_fwd(_,X,Y) if subset(Y,X)
+check_fwd(_,X,Y) if anyMember(orList(Y), X)
 
 check_fwd([impl(ListaAnd,C)], RegoleIniziali, RegoleFinali) =
-  check_fwd([], append(RegoleIniziali, [C]), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
+  check_fwd([], append(RegoleIniziali, C), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
 
 check_fwd([impl(ListaAnd, C) | T], RegoleIniziali, RegoleFinali) =
-    check_fwd(T, append(RegoleIniziali, [C]), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
-
-ᐅ Se la regola impl non è verificabile la metto al termine della lista degli impl e passo alla prossima
-ᐅ Questa cosa potrebbe creare un loop.
-
-check_fwd([impl(ListaAnd, C) | T], RegoleIniziali, RegoleFinali) =
-    check_fwd(append(T, [impl(ListaAnd, C)]), RegoleIniziali, RegoleFinali)
+    check_fwd(T, append(RegoleIniziali, C), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
 
 ᐅ verify/2 function (verifica se la lista degli and è presente nella lista di regole iniziali)
 verify(A, RegoleIniziali) = subset(A, RegoleIniziali)
@@ -55,15 +49,10 @@ length([_ | T]) = 1 + length(T)
 
 ᐅ subset/2 function
 subset([], _) = true
-subset([H | T], S) if member(S, H), subset(T, S), negationExists(H, S)
-
-negationExists(not(P), S) if member(S, P)
-negationExists(P, S) if member(S, not(P))
+subset([H | T], S) if member(S, H), subset(T, S)
 
 
 ᐅ -/1, +/2, */2 operators
 - P = not(P)      if proposition(P)
 L + R = or(L, R)  if proposition(L), proposition(R)
 L * R = and(L, R) if proposition(L), proposition(R)
-
-
