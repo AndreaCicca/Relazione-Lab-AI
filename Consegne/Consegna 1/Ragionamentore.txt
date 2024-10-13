@@ -17,6 +17,12 @@ check_fwd([impl(ListaAnd,C)], RegoleIniziali, RegoleFinali) =
 check_fwd([impl(ListaAnd, C) | T], RegoleIniziali, RegoleFinali) =
     check_fwd(T, append(RegoleIniziali, [C]), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
 
+ᐅ Se la regola impl non è verificabile la metto al termine della lista degli impl e passo alla prossima
+ᐅ Questa cosa potrebbe creare un loop.
+
+check_fwd([impl(ListaAnd, C) | T], RegoleIniziali, RegoleFinali) =
+    check_fwd(append(T, [impl(ListaAnd, C)]), RegoleIniziali, RegoleFinali)
+
 ᐅ verify/2 function (verifica se la lista degli and è presente nella lista di regole iniziali)
 verify(A, RegoleIniziali) = subset(A, RegoleIniziali)
 
