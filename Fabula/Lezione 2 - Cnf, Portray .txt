@@ -1,0 +1,57 @@
+ᐅ Forma normale congiuntiva e Portray
+
+ᐅ cnf/1 function
+
+cnf(P) = cnf1(nnf(P))
+
+ᐅ cnf/1 private function
+cnf1(P) = P if symbol(P)
+cnf1(not(P)) = not(P) 
+
+ᐅ Mi può capitare soltanto un cnf1 or o un cnf1 and perchè gli altri vengono risolti da nnf
+
+cnf1(and(P, Q)) = and(cnf1(P), cnf1(Q))
+
+ᐅ A+B*C = (A+B)*(A+C) = A + A*C + A*B + B*C = A + A*(B+C) + B*C = A*(top + B + C) + B*C = A + B*C
+ᐅ  Vogliamo far uscire and e far entrare or
+
+cnf1(or(A,B)) = cnf2(or(cnf1(A), cnf1(B)))
+cnf1(or(A,B)) = or(cnf1(A), cnf1(B))
+
+cnf2(or(A, and(B, C))) = and(cnf1(or(A, B)), cnf1(or(A, C)))
+cnf2(or(and(B, C), A)) = and(cnf1(or(A, B)), cnf1(or(A, C)))
+
+ᐅ Memoization optimization https://en.wikipedia.org/wiki/Memoization
+ᐅ Esempio
+
+ᐅ cnf1(or(A, B)) = D if A1 = cnf1(A), B1 = cnf1(B), D = cnf3(A1,B1)
+
+ᐅ nnf/1 function
+nnf(P)              = P if symbol(P)
+nnf(not(P))         = not(P) if symbol(P)
+nnf(not(not(E)))    = nnf(E)
+nnf(not(and(L, R))) = or(nnf(not(L)), nnf(not(R)))
+nnf(not(or(L, R)))  = and(nnf(not(L)), nnf(not(R)))
+nnf(or(L, R))       = or(nnf(L), nnf(R))
+nnf(and(L, R))      = and(nnf(L), nnf(R))
+
+ᐅ Proposizion/1 function
+
+proposition(P) = true if symbol(P)
+proposition(not(P)) = false if proposition(P)
+proposition(and(P,Q)) = true if proposition(P), proposition(Q)
+proposition(or(P,Q)) = true if proposition(P), proposition(Q)
+
+ᐅ Operators -/1, +/2, */2 function
+
+- P = not(P) if proposition(P)
+L + R = or(L, R) if proposition(L), proposition(R)
+L * R = and(L, R) if proposition(L), proposition(R)
+
+
+ᐅ Portray/1 function
+
+portray(not(P)) = "-(" + portray(P) + ")"
+portray(and(P,Q)) = "(" + portray(P) + " * " + portray(Q) + ")"
+portray(or(P,Q)) = "(" + portray(P) + " + " + portray(Q) + ")"
+

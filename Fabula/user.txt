@@ -1,0 +1,3 @@
+user = Lai
+
+passwd = Lai2024pwd!

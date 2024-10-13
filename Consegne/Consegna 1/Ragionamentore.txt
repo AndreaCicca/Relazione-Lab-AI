@@ -1,0 +1,63 @@
+ᐅ antecedente11 and antecedente12 and ... and antecedente1N -> tes1
+
+ᐅ Nota una lista di regole [impl((p*q*(-r)),t), ...] siamo in grado di partire da una condizione iniziale [p,q,-t] siamo in grado di arrivare ad una condizione finale.
+ᐅ Esempio: check([impl((p*q*(-r)),t), ...], [p,q,-t],[p])
+
+ᐅ check/3
+ᐅ Controllo che le condizioni dell'impl in testa (Per esempio impl((p*q*(-r)),t)) siano presenti dentro la lista di condizioni iniziali (quindi (p*q*(-r)) sono presenti dentro a [p,q,-t])
+ᐅ Se sono presenti allora predo t e lo Aggiungo alla lista di condizioni iniziali e diventerebbe [p,q,-t,t]
+ᐅ Passo alla regola successiva e ripeto il processo.
+
+check_fwd(_,X,Y)= true if subset(Y,X)
+check_fwd(_,X,Y) = true if anyMember(orList(Y), X)
+
+check_fwd([impl(ListaAnd,C)], RegoleIniziali, RegoleFinali) =
+  check_fwd([], append(RegoleIniziali, [C]), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
+
+check_fwd([impl(ListaAnd, C) | T], RegoleIniziali, RegoleFinali) =
+    check_fwd(T, append(RegoleIniziali, [C]), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
+
+ᐅ verify/2 function (verifica se la lista degli and è presente nella lista di regole iniziali)
+verify(A, RegoleIniziali) = subset(A, RegoleIniziali)
+
+
+ᐅ andList/2 (trasforma una formula and anche ricorsiva in una lista di elementi)
+andList(P) = andList1(P, [])
+andList1(A, L)         = [A | L] if symbol(A)
+andList1(and(A, B), L) = andList1(A, andList1(B, L))
+
+ᐅ orList/2 function (trasforma una formula or anche ricorsiva in una lista di elementi)
+orList(P) = orList1(P, [])
+orList1(A, L)         = [A | L] if symbol(A)
+orList1(or(A, B), L) = orList1(A, orList1(B, L))
+
+ᐅ member/2 function (verifica se una lista conrienta un elemento)
+member([H | _], H) = true
+member([_ | T], H) = member(T, H)
+
+ᐅ anyMember/2 function (Verifica se uno degli elementi di una lista è presente in un'altra lista)
+anyMember([H | _], L) = true if member(L, H)
+anyMember([_ | T], L) = anyMember(T, L)
+
+ᐅ append/1 function 
+append([], R)      = R
+append([H | T], R) = [H | append(T, R)]
+
+ᐅ length/1 function
+length([])      = 0
+length([_ | T]) = 1 + length(T)
+
+ᐅ subset/2 function
+subset([], _) = true
+subset([H | T], S) if member(S, H), subset(T, S), negationExists(H, S)
+
+negationExists(not(P), S) if member(S, P)
+negationExists(P, S) if member(S, not(P))
+
+
+ᐅ -/1, +/2, */2 operators
+- P = not(P)      if proposition(P)
+L + R = or(L, R)  if proposition(L), proposition(R)
+L * R = and(L, R) if proposition(L), proposition(R)
+
+

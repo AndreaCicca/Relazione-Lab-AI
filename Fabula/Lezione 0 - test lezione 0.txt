@@ -1,0 +1,18 @@
+pm(X) = X
+pm(X) = -X
+
+f(X) = 1 + pm(X)
+
+abs(X) = X 
+  if integer(X), X > 0
+abs(X) = 0 
+  if X = 0
+abs(X) = -X 
+  if integer(X), X < 0
+
+max(X, Y) = X 
+  if integer(X), integer(Y), X > Y
+max(X, Y) = Y
+  if integer(X), integer(Y), X < Y 
+
+

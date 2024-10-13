@@ -1,0 +1,6 @@
+Todo:
+- 5 pagine per esercizio
+- Parlare del problema
+- Parlare delle funzioni
+- Parlare di  eventuale testing
+- Usare template latex del prof

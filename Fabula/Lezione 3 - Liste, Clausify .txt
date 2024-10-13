@@ -1,0 +1,74 @@
+ᐅ clausify/1 function
+clausify(P) = clausify1(cnf(P), [])
+
+ᐅ Costruisce l'insieme che corrisponde agli and
+ᐅ clausify1/2 private function
+clausify1(P, L)         = [clausify2(P, []) | L] if symbol(P)
+clausify1(not(P), L)    = [clausify2(not(P), []) | L] if symbol(P)
+clausify1(or(P, Q), L)  = [clausify2(or(P, Q), []) | L]
+clausify1(and(P, Q), L) = clausify1(P, clausify1(Q, L))
+
+ᐅ Costruisce/produce effettivamente le clausole
+ᐅ clausify2/2 private function
+clausify2(P, L)         = [P | L] if symbol(P)
+clausify2(not(P), L)    = [not(P) | L] if symbol(P)
+clausify2(or(P, Q), L)  = clausify2(P, clausify2(Q, L))
+
+
+ᐅ cnf/1 function
+cnf(P) = cnf1(nnf(P))
+
+ᐅ cnf1/1 private function
+cnf1(P)         = P if symbol(P)
+cnf1(not(P))    = not(P) if symbol(P)
+cnf1(and(P, Q)) = and(cnf1(P), cnf1(Q))
+cnf1(or(P, Q))  = cnf2(or(cnf1(P), cnf1(Q)))
+
+ᐅ cnf2/1 private function
+cnf2(or(A, and(B, C))) = and(cnf1(or(A, B)), cnf1(or(A, C)))
+cnf2(or(and(B, C), A)) = and(cnf1(or(B, A)), cnf1(or(C, A)))
+cnf2(or(P, Q))         = or(P, Q)
+
+ᐅ nnf/1 function
+nnf(P)              = P if symbol(P)
+nnf(not(P))         = not(P) if symbol(P)
+nnf(not(not(E)))    = nnf(E)
+nnf(not(and(L, R))) = or(nnf(not(L)), nnf(not(R)))
+nnf(not(or(L, R)))  = and(nnf(not(L)), nnf(not(R)))
+nnf(or(L, R))       = or(nnf(L), nnf(R))
+nnf(and(L, R))      = and(nnf(L), nnf(R))
+
+ᐅ Proposizion/1 function
+
+proposition(P) = true if symbol(P)
+proposition(not(P)) = false if proposition(P)
+proposition(and(P,Q)) = true if proposition(P), proposition(Q)
+proposition(or(P,Q)) = true if proposition(P), proposition(Q)
+
+ᐅ Operators -/1, +/2, */2 function
+
+- P = not(P) if proposition(P)
+L + R = or(L, R) if proposition(L), proposition(R)
+L * R = and(L, R) if proposition(L), proposition(R)
+
+
+ᐅ Portray/1 function
+
+portray(not(P)) = "-(" + portray(P) + ")"
+portray(and(P,Q)) = "(" + portray(P) + " * " + portray(Q) + ")"
+portray(or(P,Q)) = "(" + portray(P) + " + " + portray(Q) + ")"
+
+ᐅ member/1 function
+
+member([H | _]) = H
+member([_ | R]) = member(R)
+
+ᐅ append/1 function
+
+append([], L) = L
+append([H | T], R) = [H | append(T, R)]
+
+ᐅ length/1 function
+
+length([]) = 0
+length([_ | T]) = 1 + length(T)

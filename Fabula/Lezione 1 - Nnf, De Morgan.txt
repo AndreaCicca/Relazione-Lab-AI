@@ -1,0 +1,30 @@
+ᐅ Forma normale Negata e De Morgan
+
+ᐅ nnf/1 function
+nnf(P)              = P if symbol(P)
+nnf(not(P))         = not(P) if symbol(P)
+nnf(not(not(E)))    = nnf(E)
+nnf(not(and(L, R))) = or(nnf(not(L)), nnf(not(R)))
+nnf(not(or(L, R)))  = and(nnf(not(L)), nnf(not(R)))
+nnf(or(L, R))       = or(nnf(L), nnf(R))
+nnf(and(L, R))      = and(nnf(L), nnf(R))
+
+ᐅ Proposizion/1 function
+
+proposition(P) = true if symbol(P)
+proposition(not(P)) = false if proposition(P)
+proposition(and(P,Q)) = true if proposition(P), proposition(Q)
+proposition(or(P,Q)) = true if proposition(P), proposition(Q)
+
+ᐅ Operators -/1, +/2, */2 function
+
+- P = not(P) if proposition(P)
+L + R = or(L, R) if proposition(L), proposition(R)
+L * R = and(L, R) if proposition(L), proposition(R)
+
+
+ᐅ Portray/1 function
+
+portray(not(P)) = "-(" + portray(P) + ")"
+portray(and(P,Q)) = "(" + portray(P) + " * " + portray(Q) + ")"
+portray(or(P,Q)) = "(" + portray(P) + " + " + portray(Q) + ")"
