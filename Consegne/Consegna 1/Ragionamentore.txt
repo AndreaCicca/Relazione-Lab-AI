@@ -8,20 +8,20 @@
 ᐅ Se sono presenti allora predo t e lo Aggiungo alla lista di condizioni iniziali e diventerebbe [p,q,-t,t]
 ᐅ Passo alla regola successiva e ripeto il processo.
 
-check_fwd(_,X,Y) if subset(Y,X)
-check_fwd(_,X,Y) if anyMember(orList(Y), X)
+ᐅ check_fwd([impl(and(a, b), c)], [a, b], [c]) -> true
+ᐅ check_fwd([impl(and(a, b), c), impl(and(a, c), d)], [a, b], [d]) -> true
+
+
+check_fwd(_,X,Y) = true if subset(Y,X)
+check_fwd(_,X,Y) = true if anyMember(orList(Y), X)
 
 check_fwd([impl(ListaAnd,C)], RegoleIniziali, RegoleFinali) =
-  check_fwd([], append(RegoleIniziali, C), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
+  check_fwd([], append(RegoleIniziali, [normalizeNot(C)]), RegoleFinali) if subset(andList(ListaAnd), RegoleIniziali)
 
 check_fwd([impl(ListaAnd, C) | T], RegoleIniziali, RegoleFinali) =
-    check_fwd(T, append(RegoleIniziali, C), RegoleFinali) if verify(andList(ListaAnd), RegoleIniziali)
+    check_fwd(T, append(RegoleIniziali, [normalizeNot(C)]), RegoleFinali) if subset(andList(ListaAnd), RegoleIniziali)
 
-ᐅ verify/2 function (verifica se la lista degli and è presente nella lista di regole iniziali)
-verify(A, RegoleIniziali) = subset(A, RegoleIniziali)
-
-
-ᐅ andList/2 (trasforma una formula and anche ricorsiva in una lista di elementi)
+ᐅ andList/2 function (trasforma una formula and anche ricorsiva in una lista di elementi)
 andList(P) = andList1(P, [])
 andList1(A, L)         = [A | L] if symbol(A)
 andList1(and(A, B), L) = andList1(A, andList1(B, L))
@@ -50,6 +50,10 @@ length([_ | T]) = 1 + length(T)
 ᐅ subset/2 function
 subset([], _) = true
 subset([H | T], S) if member(S, H), subset(T, S)
+
+normalizeNot(not(not(P))) = P
+normalizeNot(not(P)) = not(P)
+normalizeNot(P) = P
 
 
 ᐅ -/1, +/2, */2 operators
