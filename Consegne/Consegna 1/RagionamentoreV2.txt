@@ -10,21 +10,27 @@
 
 ᐅ check_fwd([impl(and(a, b), c)], [a, b], [c]) -> true
 ᐅ check_fwd([impl(and(a, b), c), impl(and(a, c), d)], [a, b], [d]) -> true
+
+ᐅ Simonazzi: creo 2 stack, se una regola non è soddisfatta la inserisco nel nuovo stack, quando una regola è soddisfatta 
+ᐅ Prendo la lista delle regole non soddisfatte e la metto in testa a quella delle regole iniziali e ripeto il processo.
+
 ᐅ check/3
-check(ListaImpl, RegoleIniziali, RegoleFinali) if check_fwd(ListaImpl, RegoleIniziali, RegoleFinali)
+check(ListaImpl, RegoleIniziali, RegoleFinali) if check_fwd(ListaImpl,[], RegoleIniziali, RegoleFinali)
 
-ᐅ check_fwd/3
-check_fwd(_,X,Y) = true if subset(Y,X)
-check_fwd(_,X,Y) = true if anyMember(orList(Y), X)
+ᐅ check_fwd/4
+check_fwd(_,_,X,Y) if subset(Y,X)
+check_fwd(_,_,X,Y) if anyMember(orList(Y), X)
 
-check_fwd([impl(ListaAnd,C)], RegoleIniziali, RegoleFinali) =
-  check_fwd([], append(RegoleIniziali, [normalizeNot(C)]), RegoleFinali) if subset(andList(ListaAnd), RegoleIniziali)
+check_fwd([impl(ListaAnd,C)],StackRegoleFalse, RegoleIniziali, RegoleFinali) =
+  check_fwd(StackRegoleFalse,[], append(RegoleIniziali, [normalizeNot(C)]), RegoleFinali) if subset(andList(ListaAnd), RegoleIniziali)
 
-check_fwd([impl(ListaAnd, C) | T], RegoleIniziali, RegoleFinali) =
-    check_fwd(T, append(RegoleIniziali, [normalizeNot(C)]), RegoleFinali) if subset(andList(ListaAnd), RegoleIniziali)
+check_fwd([impl(ListaAnd, C) | T], StackRegoleFalse, RegoleIniziali, RegoleFinali) =
+    check_fwd([StackRegoleFalse | T], [], append(RegoleIniziali, [normalizeNot(C)]), RegoleFinali) if subset(andList(ListaAnd), RegoleIniziali)
 
-ᐅcheck_fwd([H | T], RegoleIniziali, RegoleFinali) if
-ᐅ check_fwd(append(T, [H]), RegoleIniziali, RegoleFinali)
+ᐅ Caso in cui la regola non è soddisfatta, la inserisco nello stack delle regole non soddisfatte
+
+check_fwd([H | T], StackRegoleFalse, RegoleIniziali, RegoleFinali) if
+  check_fwd(T, [H | StackRegoleFalse], RegoleIniziali, RegoleFinali)
 
 ᐅ andList/2 function (trasforma una formula and anche ricorsiva in una lista di elementi)
 andList(P) = andList1(P, [])
