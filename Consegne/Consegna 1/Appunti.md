@@ -1,4 +1,5 @@
-# Ragionatore in logica proposizionale in avanti e indietro.
+# Consegna 1
+## Ragionatore in logica proposizionale in avanti e indietro.
 
 Certo un numero di regole
 antecedente11 and antecedente12 and ... and antecedente1N -> tes1
