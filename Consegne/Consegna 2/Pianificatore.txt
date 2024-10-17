@@ -1,0 +1,75 @@
+
+grab(X, StatoIniziale, StatoFinale, Plan) = append(Plan, [grab(Stato)])
+   if block(X),
+    Stato = X,
+    subset([empty, clear(X)],StatoIniziale),
+    StatoFinaleIntermedio = append(StatoIniziale, [holding(X)]),
+    StatoFinale = removeElement(StatoFinaleIntermedio, [empty])
+
+put(X, Y, StatoIniziale, StatoFinale, Plan) = append(Plan, [put(Stato)])
+    if block(X),
+    block(Y),
+    Stato = [X, Y],
+    subset([holding(X), clear(Y)], StatoIniziale),
+    StatoFinaleIntermedio = append(StatoIniziale, [on(X, Y), clear(X), empty]),
+    StatoFinale = removeList(StatoFinaleIntermedio, [holding(X), clear(Y)])
+
+putOnTable(X, StatoIniziale, StatoFinale, Plan) = append(Plan, [putOnTable(Stato)])
+    if block(X),
+    Stato = X,
+    subset([holding(X)], StatoIniziale),
+    StatoFinaleIntermedio = append(StatoIniziale, [onTable(X), clear(X), empty]),
+    StatoFinale = removeElement(StatoFinaleIntermedio, [holding(X)])
+
+
+removeElement([H | T], [H]) = T
+removeElement([H | T], [X]) = [H | removeElement(T, [X])]
+
+removeList(Stato, []) = Stato
+removeList(Stato, [H | T]) = removeList(removeElement(Stato, [H]), T)
+
+block(b1)
+block(b2)
+block(b3)
+
+ᐅ andList/2 function (trasforma una formula and anche ricorsiva in una lista di elementi)
+andList(P) = andList1(P, [])
+andList1(A, L)         = [A | L] if symbol(A)
+andList1(and(A, B), L) = andList1(A, andList1(B, L))
+
+ᐅ orList/2 function (trasforma una formula or anche ricorsiva in una lista di elementi)
+orList(P) = orList1(P, [])
+orList1(A, L)         = [A | L] if symbol(A)
+orList1(or(A, B), L) = orList1(A, orList1(B, L))
+
+ᐅ member/2 function (verifica se una lista conrienta un elemento)
+member([H | _], H) = true
+member([_ | T], H) = member(T, H)
+
+ᐅ anyMember/2 function (Verifica se uno degli elementi di una lista è presente in un'altra lista)
+anyMember([H | _], L) = true if member(L, H)
+anyMember([_ | T], L) = anyMember(T, L)
+
+ᐅ append/1 function 
+append([], R)      = R
+append([H | T], R) = [H | append(T, R)]
+
+ᐅ length/1 function
+length([])      = 0
+length([_ | T]) = 1 + length(T)
+
+ᐅ subset/2 function
+subset([], _) = true
+subset([H | T], S) if member(S, H), subset(T, S)
+
+normalizeNot(not(not(P))) = P
+normalizeNot(not(P)) = not(P)
+normalizeNot(P) = P
+
+tail([H | T]) = T
+head([H | T]) = H
+
+ᐅ -/1, +/2, */2 operators
+- P = not(P)      if proposition(P)
+L + R = or(L, R)  if proposition(L), proposition(R)
+L * R = and(L, R) if proposition(L), proposition(R)
