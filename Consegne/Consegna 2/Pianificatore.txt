@@ -2,6 +2,8 @@ block(b1)
 block(b2)
 block(b3)
 
+ᐅ trace_plan([clear(b1), onTable(b1), clear(b2), onTable(b2), empty],[on(b1, b2), empty],[],5)
+
 grab(X, StatoIniziale, StatoFinale, Plan) = append(Plan, [grab(Stato)])
    if block(X),
     Stato = X,
@@ -26,24 +28,38 @@ putOnTable(X, StatoIniziale, StatoFinale, Plan) = append(Plan, [putOnTable(Stato
     StatoFinale = removeElement(StatoFinaleIntermedio, [holding(X)])
 
 try_action(StatoIniziale, StatoFinale, Plan)
+    = putOnTable(X, StatoIniziale, StatoFinale, Plan)
+
+try_action(StatoIniziale, StatoFinale, Plan)
     = grab(X, StatoIniziale, StatoFinale, Plan)
 
 try_action(StatoIniziale, StatoFinale, Plan)
     = put(X, Y, StatoIniziale, StatoFinale, Plan)
 
-try_action(StatoIniziale, StatoFinale, Plan)
-    = putOnTable(X, StatoIniziale, StatoFinale, Plan)
-
-trace_plan(Stato, StatoFinale, Piano, N) = Piano
+trace_limit(Stato, StatoFinale, Piano, N) = Piano
     if subset(StatoFinale, Stato)
 
-trace_plan(Stato, StatoFinale, Piano, N) = Piano2
+trace_limit(Stato, StatoFinale, Piano, N) = Piano2
     if N > 0,
        Piano1 = try_action(Stato, StatoNuovo, Piano),
-       Piano2 = trace_plan(StatoNuovo, StatoFinale, Piano1, N-1)
+       Piano2 = trace_limit(StatoNuovo, StatoFinale, Piano1, N-1)
 
-checkNoDuplicates(PlanParziale, Plan) = true
-    if not_member(PlanParziale, Plan)
+trace(Stato, StatoFinale, Piano, N) = Piano
+    if subset(StatoFinale, Stato)
+
+trace(Stato, StatoFinale, Piano) = Piano2
+    if Piano1 = try_action(Stato, StatoNuovo, Piano),
+       Piano2 = trace(StatoNuovo, StatoFinale, Piano1)
+
+
+trace_no_loop(Stato, StatoFinale, Piano, _, N) = Piano
+    if subset(StatoFinale, Stato)
+
+trace_no_loop(Stato, StatoFinale, Piano, StatiVisitati, N) = Piano2
+    if N > 0,
+       not_member([Stato], StatiVisitati),
+       Piano1 = try_action(Stato, StatoNuovo, Piano),
+       Piano2 = trace_plan(StatoNuovo, StatoFinale, Piano1, append([Stato], StatiVisitati), N-1)
 
 
 not_member([], _) = true
