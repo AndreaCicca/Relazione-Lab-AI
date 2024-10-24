@@ -36,6 +36,7 @@ try_action(StatoIniziale, StatoFinale, Plan)
 try_action(StatoIniziale, StatoFinale, Plan)
     = put(X, Y, StatoIniziale, StatoFinale, Plan)
 
+ᐅ DFS con limite di profondità
 trace_limit(Stato, StatoFinale, Piano, N) = Piano
     if subset(StatoFinale, Stato)
 
@@ -44,6 +45,7 @@ trace_limit(Stato, StatoFinale, Piano, N) = Piano2
        Piano1 = try_action(Stato, StatoNuovo, Piano),
        Piano2 = trace_limit(StatoNuovo, StatoFinale, Piano1, N-1)
 
+ᐅ DFS
 trace(Stato, StatoFinale, Piano, N) = Piano
     if subset(StatoFinale, Stato)
 
@@ -52,14 +54,14 @@ trace(Stato, StatoFinale, Piano) = Piano2
        Piano2 = trace(StatoNuovo, StatoFinale, Piano1)
 
 
-trace_no_loop(Stato, StatoFinale, Piano, _, N) = Piano
-    if subset(StatoFinale, Stato)
+ᐅ DFS con ricerca iterativa
+planIter(StatoIniziale, StatoFinale, N) =
+    try_plan(StatoIniziale, StatoFinale, N)
 
-trace_no_loop(Stato, StatoFinale, Piano, StatiVisitati, N) = Piano2
-    if N > 0,
-       not_member([Stato], StatiVisitati),
-       Piano1 = try_action(Stato, StatoNuovo, Piano),
-       Piano2 = trace_plan(StatoNuovo, StatoFinale, Piano1, append([Stato], StatiVisitati), N-1)
+try_plan(StatoIniziale, StatoFinale, N) =
+    trace_limit(StatoIniziale, StatoFinale, [], N)
+try_plan(StatoIniziale, StatoFinale, N) =
+    planIter(StatoIniziale, StatoFinale, N + 1)
 
 
 not_member([], _) = true
