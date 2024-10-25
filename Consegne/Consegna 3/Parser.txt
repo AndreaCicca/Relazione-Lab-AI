@@ -1,13 +1,3 @@
-# Consegna 3 Parser
-
- Linguaggio naturale dei micro mondi.
-
-Linguaggio naturale -> AST -> Liste di termini (per esempio onTable(b1))
-
-Partiamo da: "The yellow block is on the table" e dobbiamo ritornare una lista vuola se è comprensibile.
-
-Grammatica dell'inglese?
-
 ᐅ Quello che si vorrebbe fare
 a([the, block,is, on, the, table])
 

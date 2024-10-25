@@ -1,0 +1,42 @@
+ᐅ Albero Sintassi Astratta
+
+ᐅ Aggiungere aggettivi? La mano con grab e release
+
+ᐅ is(object(block, [color(yellow)]), object(table, []))
+
+
+ᐅ Quello che si vorrebbe fare
+a([the, block,is, on, the, table])
+
+a(A) = vp(R1, ASTN)
+    if [R1, ASTN] = np(A)
+
+c(C) = vp
+
+ᐅ Noun Phrase
+np([the | R1]) = n(R1)
+
+vp([is, on | N], ASTS) = [R, on(ASTS, ASTN)]
+    if [R, ASTN] = np(N)
+
+ᐅ Noun Phrase
+n([N | R]) = [R, object(C, [])]
+    if noun(C, N)
+
+n(N) = [R, object(C, [attribute(T, A)])]
+    if N = [A, L | R], adj(A), noun(C, L) 
+
+
+be(is)
+be(are)
+
+ᐅ Lessico
+determiner(the)
+
+noun(block, block)
+noun(cube,  block)
+noun(table, table)
+
+adj(color, yellow)
+adj(color, blue)
+adj(color, red)  
