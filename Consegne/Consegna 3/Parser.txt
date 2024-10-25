@@ -4,7 +4,6 @@ a([the, block,is, on, the, table])
 a(A) = R
     if R1 = np(A), R = vp(R1)
 
-
 ᐅ Noun Phrase
 np(NP) = R
     if R1 = det(NP), R = n(R1)
@@ -13,7 +12,7 @@ vp(VP) = R
     if R1 = abe(VP), R = pp(R1)
 
 pp(PP) = R
-    if PP = [on, R1], R = np(R1)
+    if [on, R1] = PP, R = np(R1)
 
 abe([B | R]) = R
     if be(B)
