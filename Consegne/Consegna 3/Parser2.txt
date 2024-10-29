@@ -6,7 +6,7 @@
 
 
 ᐅ Quello che si vorrebbe fare
-a([the, block,is, on, the, table])
+ᐅa([the, block,is, on, the, table])
 
 a(A) = vp(R1, ASTN)
     if [R1, ASTN] = np(A)
