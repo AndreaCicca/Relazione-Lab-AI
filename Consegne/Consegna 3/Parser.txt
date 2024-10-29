@@ -1,18 +1,18 @@
 ᐅ Quello che si vorrebbe fare
-a([the, block,is, on, the, table])
+ᐅa([the, block,is, on, the, table])
 
 a(A) = R
-    if R1 = np(A), R = vp(R1)
+    if np(A) = R1, vp(R1) = R
 
 ᐅ Noun Phrase
 np(NP) = R
-    if R1 = det(NP), R = n(R1)
+    if det(NP) = R1, n(R1) = R
 
 vp(VP) = R
-    if R1 = abe(VP), R = pp(R1)
+    if abe(VP) = R1, pp(R1) = R
 
 pp(PP) = R
-    if [on, R1] = PP, R = np(R1)
+    if PP = [on | R1], np(R1) = R
 
 abe([B | R]) = R
     if be(B)
