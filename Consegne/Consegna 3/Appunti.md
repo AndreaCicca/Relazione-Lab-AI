@@ -8,49 +8,45 @@ Partiamo da: "The yellow block is on the table" e dobbiamo ritornare una lista v
 
 Grammatica dell'inglese?
 
-ᐅ Quello che si vorrebbe fare
-a([the, block,is, on, the, table])
+b1 is on the table
+tell([],[b1, is, on, the, table]) = [onTable(b1)]
 
-a(A) = R
-    if R1 = np(A), R = vp(R1)
+b1 is on b2
+tell([],[b1, is, on, b2]) = [on(b1, b2)]
 
+where is b1?
+ask([onTable(b1)], [where, is, b1, '?']) = [b1, is, on, the, table, '.']
 
-ᐅ Noun Phrase
-np(NP) = R
-    if R1 = det(NP), R = n(R1)
-
-vp(VP) = R
-    if R1 = abe(VP), R = pp(R1)
-
-pp(PP) = R
-    if PP = [on, R1], R = np(R1)
-
-abe([B | R]) = R
-    if be(B)
-
-ᐅ Determiner
-det([D | R]) = R
-    if determiner(D)
-
-ᐅ Noun Phrase
-n([N | R]) = R
-    if noun(N)
-
-n(N) = R
-    if N = [A, R1 | R], adj(A), noun(R1) 
+where is b2?
+ask([on(b1, b2)], [where, is, b2, '?']) = [b2, is, on, b1, '.']
 
 
-be(is)
-be(are)
+--------------- PIU' COMPLICATO ----------------
 
-ᐅ Lessico
-determiner(the)
-determiner(a)
-determiner(an)
+The blue block is on the table.
+tell([], [the, block, that, is, on, the, blue, block, is, large, '.']) = [onTable(b2)]
 
-noun(block)
-noun(table)
+the small block is on the large block.
+tell([],[the, block, that, is, on, the, small, block, is, on, the, large, block, '.']) = [on(b1, b3)]
+tell([],[the, block, that, is, on, the, small, block, is, on, the, large, block, '.']) = [on(b2, b3)]
 
-adj(yellow)
-adj(blue)
-adj(red)
+the blue block is over the large block.
+tell([],[the, block, that, is, over, the, blue, block, is, large, '.']) = [over(b2, b3)]
+
+the blue block is on top of the large block.
+tell([],[the, block, that, is, on, top, of, the, blue, block, is, large, '.']) = [onTopOf(b2, b3)]
+
+the block that is on the blue block is belowe the red block.
+tell([onTable(b1), color(b3, red)],[the, block, that, is, below, the, red, block, is, on, the, table, '.']) = [on(b3, b1)]
+
+tell([onTable(b1)],[the, block, that, is, on, the, table, is red, '.']) = [color(b1, red)]
+
+Where is the large block?
+Pos is the large block => the large block is Pos => onTable(b1)
+ask([onTable(b1), on(b2, b1), size(b1, large)], [where, is, the, large, block, '?']) = 
+        [b1, is, on, the, table, '.']
+
+Where is the small block?
+Pos is the small block => the small block is Pos => on(X, b1)
+ask([onTable(b1), on(b2, b1), size(b1, large)], [where, is, the, large, block, '?']) = 
+        [the, small, block, is, on, b1, '.']
