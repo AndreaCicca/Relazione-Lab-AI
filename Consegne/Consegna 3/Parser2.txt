@@ -24,7 +24,7 @@ n([N | R]) = [R, object(C, [])]
     if noun(C, N)
 
 n(N) = [R, object(C, [attribute(T, A)])]
-    if N = [A, L | R], adj(A), noun(C, L) 
+    if N = [A, L | R], adj(T, A), noun(C, L) 
 
 
 be(is)
