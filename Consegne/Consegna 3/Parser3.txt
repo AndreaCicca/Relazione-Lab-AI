@@ -1,0 +1,55 @@
+ᐅ Quello che si vorrebbe fare
+ᐅa([the, block,is, on, the, table])
+
+a(A) = vp(R1, ASTN)
+    if [R1, ASTN] = np(A)
+
+c(C) = vp
+
+ᐅ Noun Phrase
+np([the | R1]) = n(R1)
+np(R1) = n(R1)
+
+vp([is, on | N], ASTS) = [R, on(ASTS, ASTN)]
+    if [R, ASTN] = np(N)
+
+ᐅ Noun Phrase
+n([N | R]) = [R, object(C, [])]
+    if noun(C, N)
+
+n(N) = [R, object(C, [attribute(T, A)])]
+    if N = [A, L | R], adj(T, A), noun(C, L) 
+
+
+be(is)
+be(are)
+
+ᐅ Lessico
+determiner(the)
+
+noun(block, block)
+noun(cube,  block)
+noun(table, table)
+
+noun(b1, b1)      
+noun(b2, b2)
+noun(b3, b3)
+
+adj(color, yellow)
+adj(color, blue)
+adj(color, red)  
+
+tell([], Expr) = simplify_ast(AST)
+    if AST = a(Expr)
+
+simplify_ast([[],on(object(X,[attribute(color,COLOR)]),object(table,[]))]) = [onTable(X), color(X, COLOR)]
+
+simplify_ast([[],on(object(X,[]),object(table,[]))]) = [onTable(X)]
+
+simplify_ast([[],on(object(X,[]),object(Y,[]))]) = [on(X, Y)] if Y ≠ table
+
+simplify_ast([[],on(object(X,[attribute(color,COLOR)]),object(Y,[]))]) = [on(X, Y), color(X, COLOR)] if Y ≠ table
+
+simplify_ast([[],on(object(X,[]),object(Y,[attribute(color,COLOR)]))]) = [on(X, Y), color(Y, COLOR)] if Y ≠ table
+
+simplify_ast([[],on(object(X,[attribute(color,COLORX)]),object(Y,[attribute(color,COLORY)]))]) = [on(X, Y), color(Y, COLORY), color(Y, COLORX)] if Y ≠ table
