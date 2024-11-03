@@ -53,3 +53,22 @@ simplify_ast([[],on(object(X,[attribute(color,COLOR)]),object(Y,[]))]) = [on(X, 
 simplify_ast([[],on(object(X,[]),object(Y,[attribute(color,COLOR)]))]) = [on(X, Y), color(Y, COLOR)] if Y ≠ table
 
 simplify_ast([[],on(object(X,[attribute(color,COLORX)]),object(Y,[attribute(color,COLORY)]))]) = [on(X, Y), color(Y, COLORY), color(Y, COLORX)] if Y ≠ table
+
+ᐅ member/2 function (verifica se una lista conrienta un elemento)
+member([H | _], H) = true
+member([_ | T], H) = member(T, H)
+
+ask(WorldFacts, [where, is, Object, '?']) = [Object, is, on, the, table, '.']
+    if member(WorldFacts, onTable(Object))
+
+ask(WorldFacts, [where, is, Object, '?']) = [Object, is, on, Y, '.']
+    if member(WorldFacts, on(Object, Y))
+
+ask(WorldFacts, [what, color, is, Object, '?']) = [Object, is, Color, '.']
+    if member(WorldFacts, color(Object, Color))
+
+ask(WorldFacts, [what, is, on, Object, '?']) = [X, is, on, Object, '.']
+    if member(WorldFacts, on(X, Object))
+
+
+  
