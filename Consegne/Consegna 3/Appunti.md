@@ -15,7 +15,7 @@ b1 is on b2
 tell([],[b1, is, on, b2]) = [on(b1, b2)]
 
 where is b1?
-ask([onTable(b1)], [where, is, b1, '?']) = [b1, is, on, the, table, '.']
+ask(tell([], [b1, is, on, the, table, '.']), [where, is, b1, '?']) = [b1, is, on, the, table, '.']
 
 where is b2?
 ask([on(b1, b2)], [where, is, b2, '?']) = [b2, is, on, b1, '.']
@@ -24,7 +24,7 @@ ask([on(b1, b2)], [where, is, b2, '?']) = [b2, is, on, b1, '.']
 --------------- PIU' COMPLICATO ----------------
 
 The blue block is on the table.
-tell([], [the, block, that, is, on, the, blue, block, is, large, '.']) = [onTable(b2)]
+tell([], [the, blue, block, in, on, the, table, '.']) = [onTable(b2)]
 
 the small block is on the large block.
 tell([],[the, block, that, is, on, the, small, block, is, on, the, large, block, '.']) = [on(b1, b3)]

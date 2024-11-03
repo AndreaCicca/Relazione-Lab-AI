@@ -20,6 +20,10 @@ n([N | R]) = [R, object(C, [])]
 n(N) = [R, object(C, [attribute(T, A)])]
     if N = [A, L | R], adj(T, A), noun(C, L) 
 
+remove_period(['.']) = []
+remove_period([X | Rest]) = [X | remove_period(Rest)]
+
+
 
 be(is)
 be(are)
@@ -37,10 +41,35 @@ noun(b3, b3)
 
 adj(color, yellow)
 adj(color, blue)
-adj(color, red)  
+adj(color, red)
+adj(size, small)
+adj(size, medium) 
+adj(size, large)
 
-tell([], Expr) = simplify_ast(AST)
-    if AST = a(Expr)
+blocks(X) if  X = member([b1,b2,b3])
+
+size(b1) = small
+size(b1) = small
+size(b1) = largte
+
+color(b1) = green
+color(b2) = blue
+color(b3) = red
+
+check_properties(X, [attribute(color, COLOR)]) = true
+    if color(X) = COLOR, blocks(X)
+
+check_properties(X, [attribute(size, SIZE)]) = true
+    if size(X) = SIZE, blocks(X)
+
+find_block(Attributes) = X
+    if blocks(X), check_properties(X, Attributes)
+
+
+tell(KnowledgeBase, Sentence) = simplify_ast(AST)
+    if SentenceWithoutPeriod = remove_period(Sentence),
+       AST = a(SentenceWithoutPeriod)
+
 
 simplify_ast([[],on(object(X,[attribute(color,COLOR)]),object(table,[]))]) = [onTable(X), color(X, COLOR)]
 
@@ -54,21 +83,20 @@ simplify_ast([[],on(object(X,[]),object(Y,[attribute(color,COLOR)]))]) = [on(X, 
 
 simplify_ast([[],on(object(X,[attribute(color,COLORX)]),object(Y,[attribute(color,COLORY)]))]) = [on(X, Y), color(Y, COLORY), color(Y, COLORX)] if Y ≠ table
 
+
+ask(KnowledgeBase, [where, is, Object, '?']) = [Object, is, on, the, table, '.']
+    if member(KnowledgeBase, onTable(Object))
+
+ask(KnowledgeBase, [what, color, is, Object, '?']) = [Object, is, Color, '.']
+    if member(KnowledgeBase, color(Object, Color))
+
+ask(KnowledgeBase, [where, is, Object2, '?']) = [Object2, is, on, Object1, '.']
+    if member(KnowledgeBase, on(Object1, Object2)), Object1 ≠ Object2
+
+ᐅ member/1
+member([H | _]) = H
+member([_ | R]) = member(R)
+
 ᐅ member/2 function (verifica se una lista conrienta un elemento)
 member([H | _], H) = true
 member([_ | T], H) = member(T, H)
-
-ask(WorldFacts, [where, is, Object, '?']) = [Object, is, on, the, table, '.']
-    if member(WorldFacts, onTable(Object))
-
-ask(WorldFacts, [where, is, Object, '?']) = [Object, is, on, Y, '.']
-    if member(WorldFacts, on(Object, Y))
-
-ask(WorldFacts, [what, color, is, Object, '?']) = [Object, is, Color, '.']
-    if member(WorldFacts, color(Object, Color))
-
-ask(WorldFacts, [what, is, on, Object, '?']) = [X, is, on, Object, '.']
-    if member(WorldFacts, on(X, Object))
-
-
-  
