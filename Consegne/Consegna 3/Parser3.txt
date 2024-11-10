@@ -47,10 +47,11 @@ adj(size, medium)
 adj(size, large)
 
 blocks(X) if  X = member([b1,b2,b3])
+blocchi_generici(X) if noun(X, block)
 
 size(b1) = small
-size(b1) = small
-size(b1) = largte
+size(b2) = small
+size(b3) = largte
 
 color(b1) = green
 color(b2) = blue
@@ -70,6 +71,11 @@ tell(KnowledgeBase, Sentence) = simplify_ast(AST)
     if SentenceWithoutPeriod = remove_period(Sentence),
        AST = a(SentenceWithoutPeriod)
 
+simplify_ast([[],on(object(Obj,[attribute(color,COLOR)]),object(table,[]))]) = [onTable(Blocco), color(Blocco, COLOR)]
+     if blocchi_generici(Obj),  blocks(Blocco), color(Blocco) = COLOR
+
+simplify_ast([[],on(object(Obj,[attribute(size,SIZE)]),object(table,[]))]) = [onTable(Blocco), size(Blocco, SIZE)]
+     if blocchi_generici(Obj),  blocks(Blocco), size(Blocco) = SIZE
 
 simplify_ast([[],on(object(X,[attribute(color,COLOR)]),object(table,[]))]) = [onTable(X), color(X, COLOR)]
 
