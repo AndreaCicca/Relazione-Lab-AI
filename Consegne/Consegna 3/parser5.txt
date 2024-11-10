@@ -1,0 +1,85 @@
+ᐅ Regola principale
+tell([], Sentence) = simplify_ast(AST)
+    if SentenceWithoutPeriod = remove_period(Sentence),
+       AST = a(SentenceWithoutPeriod)
+
+ᐅ Analisi principale
+a([the | Rest]) = vp(R1, ASTN)
+    if [R1, ASTN] = np1([the | Rest])
+
+ᐅ Sintagmi nominali modificati per trovare il blocco specifico
+np1([the, Color, block | Rest]) = [Rest, object(B, [attribute(color, Color)])]
+    if adj(color, Color),
+       blocks(B),
+       color(B) = Color
+
+ᐅ Gestione delle preposizioni
+vp([in, on | Rest], Obj) = [R, on(Obj, Target)]
+    if [R, Target] = np2(Rest)
+
+ᐅ Gestione del secondo sintagma nominale
+np2([the, table]) = [[], object(table, [])]
+
+ᐅ Utility
+remove_period(['.']) = []
+remove_period([X | Rest]) = [X | remove_period(Rest)]
+
+ᐅ Proprietà blocchi
+size(b1) = small
+size(b2) = small
+size(b3) = large
+color(b1) = green
+color(b2) = blue
+color(b3) = red
+
+ᐅ Regole blocchi
+blocks(X) = true
+    if X = member([b1,b2,b3])
+
+ᐅ Verificare se un blocco ha un certo colore
+has_color(Block, Color) = true
+    if color(Block) = Color
+
+ᐅ Regole AST modificate per usare il blocco specifico
+simplify_ast([[],on(object(B,[attribute(color,COLOR)]),object(table,[]))]) = [onTable(B), color(B, COLOR)]
+    if blocks(B),
+       color(B) = COLOR
+
+ᐅ Resto del codice di base necessario
+determiner(the)
+noun(block, block)
+noun(table, table)
+adj(color, blue)
+adj(size, small)
+
+ᐅ Funzioni di utilità
+member([H | _]) = H
+member([_ | R]) = member(R)
+
+member([H | _], H) = true
+member([_ | T], H) = member(T, H)
+
+
+ᐅ Funzione principale ask estesa
+ask(KnowledgeBase, [where, is, the, Adj, block, '?']) = [Block, is, on, the, table, '.']
+    if adj(Category, Adj),
+       Block =  find_block_with_property(KnowledgeBase, Category, Adj),
+       member(KnowledgeBase, onTable(Block))
+ᐅ ask([onTable(b1), size(b1, small)], [where, is, the, small, block, '?']) = [b1,is,on,the,table,'.']
+
+
+
+ask(KnowledgeBase, [where, is, the, Adj, Noun, '?']) = [Block, is, on, OtherBlock, '.']
+    if adj(Category, Adj),
+       Block = find_block_with_property(KnowledgeBase, Category, Adj),
+       member(KnowledgeBase, on(Block, OtherBlock))
+
+ᐅ ask([on(b1,b2), size(b1, small)], [where, is, the, small, block, '?']) = [b1,is,on,b2,'.']
+
+
+ᐅ Funzione ausiliaria per trovare un blocco con una proprietà specifica
+find_block_with_property(KnowledgeBase, size, Size) = Block
+    if member(KnowledgeBase, size(Block, Size))
+
+find_block_with_property(KnowledgeBase, color, Color, Block) = Block
+    if member(KnowledgeBase, color(Block, Color))

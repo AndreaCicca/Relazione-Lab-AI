@@ -1,0 +1,59 @@
+ᐅ Regola principale
+tell([], Sentence) = simplify_ast(AST)
+    if SentenceWithoutPeriod = remove_period(Sentence),
+       AST = a(SentenceWithoutPeriod)
+
+ᐅ Analisi principale
+a([the | Rest]) = vp(R1, ASTN)
+    if [R1, ASTN] = np1([the | Rest])
+
+ᐅ Sintagmi nominali modificati per trovare il blocco specifico
+np1([the, Color, block | Rest]) = [Rest, object(B, [attribute(color, Color)])]
+    if adj(color, Color),
+       blocks(B),
+       color(B) = Color
+
+ᐅ Gestione delle preposizioni
+vp([in, on | Rest], Obj) = [R, on(Obj, Target)]
+    if [R, Target] = np2(Rest)
+
+ᐅ Gestione del secondo sintagma nominale
+np2([the, table]) = [[], object(table, [])]
+
+ᐅ Utility
+remove_period(['.']) = []
+remove_period([X | Rest]) = [X | remove_period(Rest)]
+
+ᐅ Proprietà blocchi
+size(b1) = small
+size(b2) = small
+size(b3) = large
+color(b1) = green
+color(b2) = blue
+color(b3) = red
+
+ᐅ Regole blocchi
+blocks(X) = true
+    if X = member([b1,b2,b3])
+
+ᐅ Verificare se un blocco ha un certo colore
+has_color(Block, Color) = true
+    if color(Block) = Color
+
+ᐅ Regole AST modificate per usare il blocco specifico
+simplify_ast([[],on(object(B,[attribute(color,COLOR)]),object(table,[]))]) = [onTable(B), color(B, COLOR)]
+    if blocks(B),
+       color(B) = COLOR
+
+ᐅ Resto del codice di base necessario
+determiner(the)
+noun(block, block)
+noun(table, table)
+adj(color, blue)
+
+ᐅ Funzioni di utilità
+member([H | _]) = H
+member([_ | R]) = member(R)
+
+member([H | _], H) = true
+member([_ | T], H) = member(T, H)

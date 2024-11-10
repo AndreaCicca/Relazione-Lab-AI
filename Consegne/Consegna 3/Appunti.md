@@ -27,16 +27,16 @@ The blue block is on the table.
 tell([], [the, blue, block, in, on, the, table, '.']) = [onTable(b2)]
 
 the small block is on the large block.
-tell([],[the, block, that, is, on, the, small, block, is, on, the, large, block, '.']) = [on(b1, b3)]
-tell([],[the, block, that, is, on, the, small, block, is, on, the, large, block, '.']) = [on(b2, b3)]
+tell([],[the, small, block, is, on, the, large, block, '.']) = [on(b1, b3)]
+tell([],[the, small, block, is, on, the, large, block, '.']) = [on(b2, b3)]
 
 the blue block is over the large block.
-tell([],[the, block, that, is, over, the, blue, block, is, large, '.']) = [over(b2, b3)]
+tell([],[the, block, that, is, over, the, large , block, '.']) = [on(b2, b3)]
 
 the blue block is on top of the large block.
-tell([],[the, block, that, is, on, top, of, the, blue, block, is, large, '.']) = [onTopOf(b2, b3)]
+tell([on(b3,b2)],[the, blue, block, is, on, the, top, of, the, large, block, '.']) = fail
 
-the block that is on the blue block is belowe the red block.
+the block that is on the blue block is below the red block.
 tell([onTable(b1), color(b3, red)],[the, block, that, is, below, the, red, block, is, on, the, table, '.']) = [on(b3, b1)]
 
 tell([onTable(b1)],[the, block, that, is, on, the, table, is red, '.']) = [color(b1, red)]
