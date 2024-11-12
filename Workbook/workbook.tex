@@ -9,6 +9,12 @@
 
 \usepackage{listings}
 
+\usepackage{amsmath}
+
+\usepackage{tabularx}
+
+\usepackage{tikz}
+
 \lstdefinelanguage{fabula}{
   keywordstyle=\textbf,
   keywords={div,if,mod},
@@ -33,7 +39,7 @@
 \DeclareUnicodeCharacter{2260}{$\neq$}
 
 \title{Laboratorio di Intelligenza Artificiale}
-\author{Nome e Cognome}
+\author{Andrea Ciccarello}
 \date{A.A. 2024-2025}
 
 \begin{document}
@@ -42,86 +48,557 @@
 
 \section*{Esercizio 1}
 
-\paragraph{Problema.} Descrizione del problema affrontato. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\paragraph{Problema.} Il problema consiste nel creare un ragionatore in logica proposizionale, sfruttando regole e implicazioni logiche. Queste regole sono espresse sotto forma di implicazioni logiche (ad esempio, \emph{se A allora B}), e l'obiettivo del ragionatore è applicare tali regole in modo sistematico per estendere un insieme di condizioni iniziali fino a raggiungere le condizioni finali desiderate.
 
-\paragraph{Metodo.} Descrizione degli algoritmi utilizzati per la risoluzione del problema. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Il cuore di questo sistema è il motore inferenziale, un componente che applica meccanismi di inferenza per dedurre nuove informazioni a partire da un insieme di fatti e regole.
+Un ragionatore deve essere in grado di gestire le complessità delle regole logiche e applicare in modo efficiente le inferenze, rispettando la correttezza logica e garantendo la validità delle deduzioni.
+Il compito del programma in \textit{Fabula} sarà quello di analizzare le regole (espresse come implicazioni) e applicarle per raggiungere le conclusioni desiderate, espandendo progressivamente il set di fatti noti. 
 
-\paragraph{Strutture dati.} Descrizione delle strutture dati utilizzate. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Le implicazioni vengono espresse come una congiunzione di ipotesi (gli antecedenti) che generano dei fatti nuovi del tipo:
 
-\paragraph{Funzioni.} Descrizione delle funzioni realizzate specificando anche quali sono pubbliche e quali sono private. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\[
+\text{antecedente1}_1 \land \text{antecedente1}_2 \land \ldots \land \text{antecedente1}_N \rightarrow \text{tesi1}_1
+\]
+\[
+\text{antecedente2}_1 \land \text{antecedente2}_2 \land \ldots \land \text{antecedente2}_N \rightarrow \text{tesi2}_1
+\]
+
+Esse vengono espresse con una lista di termini \texttt{impl(antecedente,tesi)}. Gli antecedenti vengono rappresentati tramite degli una lista di and. I goal sono rappresentati da uno o più proposizioni all'interno di un or logico.
+La signature della funzione ad alto livello, che successivamente verrà implementata nel linguaggio logico funzionale \textit{Fabula} dovrà essere la seguente:
+
 \begin{lstlisting}
-ᐅ abs/1 function
-abs(X) = X  if integer(X), X ≥ 0
-abs(X) = -X if integer(X), X < 0
-
-ᐅ member/2 function
-member([H | _]) = H
-member([_ | R]) = member(R)
+check([Lista di antecedenti e tesi], 
+    [Lista di fatti veri],[Goal])
 \end{lstlisting}
-Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-\begin{figure}[t]
+Il ragionatore ha 2 strade da poter intraprendere per poter risolvere questo problema:
+\begin{enumerate}
+    \item \textit{Ragionamento in avanti}: partendo da un certo insieme di regole generare tutte le nuove verità, partendo da un insieme di fatti veri.
+    \item \textit{Ragionamento indietro}: con l'obiettivo di rendere vero un fatto, quali regole poter applicare e sotto quali condizioni posso portare a quel fatto.
+\end{enumerate}
+
+\paragraph{Metodo.} L'algoritmo alla base di check\_fwd/3 è una variante della catena in avanti (forward chaining), uno dei due principali metodi di ragionamento usati da un motore inferenziale.
+Essa è tecnica di inferenza utilizzata in sistemi basati su regole. Partendo da un di fatti (le condizioni iniziali) e applicare ripetutamente regole di inferenza per dedurre nuovi fatti, finché non si raggiunge un obiettivo preposto.
+Un motore inferenziale è un algoritmo che simula le modalità con cui la mente umana trae delle conclusioni logiche attraverso il ragionamento.
+
+\begin{enumerate}
+    \item Si parte dai fatti noti espressi nel secondo campo del check\_fwd/3.
+    \item Si controlla se le le regole che sono già presenti al momento già permettono di arrivare al goal finale.
+    \item Si leggono le regole e le si verifica rispetto alle precondizioni date.
+    \item Si allarga l'insieme delle proposizioni vere, aggiungendo eventualmente quelle presenti all'interno delle implicazioni.
+    \item Si ricomincia dal punto 2
+\end{enumerate}
+
+\paragraph{Strutture dati.} Vengono utilizzate diverse strutture dati differenti la cui base sono le liste implementate nel linguaggio \texttt{Fabula}.
+\begin{enumerate}
+    \item Liste: Per rappresentare insiemi di implicazioni, condizioni iniziali e finali.
+    \item Operatori logici (\texttt{and},\texttt{or}): Rappresentati come alberi binari di espressioni logiche.
+    \item Implicazioni \texttt{impl(A, B)}: Strutture che rappresentano regole logiche.
+    \item Le implicazioni che non possono ancora essere verificate, per la mancanza della veridicità di uno o più antecedenti, vengono inserite in una lista con regole di gestione FIFO, simile a quello che accade in uno Stack. 
+\end{enumerate}
+
+Le implicazioni (\texttt{impl(A, B)}) possono contenere uno o più \texttt{and()} annidati, in modo simile il goal finale potrebbe essere rappresentato da uno o più proposizioni dentro ad uno o più \texttt{or()} annidati.
+
+\paragraph{Funzioni.} 
+
+All'utente finale verrà esposta soltanto una funzione check/3, al cui interno inserirà nei rispettivi campi
+\begin{enumerate}
+    \item La lista delle implicazioni sfruttando il termine impl(A,B).
+    \item La lista delle regole iniziali, rappresentata da una lista di proposizione, da cui partire per effettuare la computazione.
+    \item la lista delle regole finali che rappresentano l'obiettivo da raggiungere.
+\end{enumerate}
+
 \begin{lstlisting}
-ᐅ member/2 function
-member([H | _]) = H
-member([_ | R]) = member(R)
+ᐅ check/3 function
+check(ListaImpl, RegoleIniziali, Goal) 
+    if check_fwd(ListaImpl,[], RegoleIniziali, Goal)
 
-ᐅ append/2 function
-append([], R)      = R
-append([H | T], R) = [H | append(T, R)]
-
-ᐅ length/1 function
-length([])      = 0
-length([_ | R]) = 1 + length(R)
 \end{lstlisting}
-\caption{Un sorgente in una figura}
-\end{figure}
+L'implementazione del ragionatore tramite il  "Forward chaining" viene implementato tramite la funzione check\_fwd/3, la signature è simile alla check tranne per il secondo elemento che rappresenta lo Stack delle regole che si sono rivelate false fino a quel momento.
 
-Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\begin{lstlisting}
+ᐅ check_fwd/3 function pravate
+check_fwd(__,_, X,Y) if anyMember(Y, X)
 
-\paragraph{Esempi.} Descrizione di alcuni esempi di utilizzo. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\end{lstlisting}
+
+I 2 casi in cui la funziona termina con successo sono quelli in cui almeno un termine del goal è presente all'interno delle proposizioni verificate come vere. 
+
+\begin{lstlisting}
+
+ᐅ check_fwd/3 function first case 
+check_fwd([impl(ListaAnd,C
+          StackImplicazioniFalse, 
+          RegoleIniziali, 
+          RegoleFinali) =
+    check_fwd(StackImplicazioniFalse,
+              [], 
+              append(RegoleIniziali, 
+              [normalizeNot(C)]), 
+              RegoleFinali) 
+    if subset(andList(ListaAnd), 
+              RegoleIniziali)
+\end{lstlisting}
+
+Nel caso in cui sia presente soltanto una implicazione la si verifica, si normalizza la tesi se necessario e in caso positivo si amplia la lista delle proposizioni vere. Se la verifica è positiva si spostano le eventuali regole reputate false e le si inserisce all'interno delle regole da verificare.
+
+\begin{lstlisting}
+ᐅ check_fwd/3 function second case 
+check_fwd([impl(ListaAnd, C) | T], 
+          StackImplicazioniFalse, 
+          RegoleIniziali, 
+          RegoleFinali) =
+    check_fwd([StackImplicazioniFalse | T], 
+              [], append(RegoleIniziali, 
+              [normalizeNot(C)]), RegoleFinali) 
+    if subset(andList(ListaAnd), 
+              RegoleIniziali)
+\end{lstlisting}
+
+Se la lista delle implicazioni è composta ancora da più di un elemento si verifica la prima e nel caso si amplia la lista delle regole vere e si accoda il resto delle regole alla coda "First in First out" delle regole reputate come false in precedenza.
+Questo fa si che la prossima computazione provi a verificare prima le regole che in precedenza non avevano tutti i propri antecedenti rispettati. 
+
+\begin{lstlisting}
+ᐅ check_fwd/3 function third case 
+check_fwd([H | T], 
+          StackImplicazioniFalse, 
+          RegoleIniziali, 
+          RegoleFinali) 
+    if check_fwd(T, [H | StackImplicazioniFalse], 
+                 RegoleIniziali, 
+                 RegoleFinali)
+\end{lstlisting}
+
+Come ultimo caso se la implicazione non rientra in nessuno dei casi precedenti allora la si inserisce nella lista delle regole false che funziona come una coda FIFO. Questa lista è presente nel secondo argomento di check\_fwd.
+
+
+\paragraph{Esempi.} Descrizione di alcuni esempi di utilizzo della funzione check.
+% Appunti dei test
+% check([impl(and(a, b), c), impl(and(a, c), d)], [a, b], [d]) -> true
+% check([impl(and(a, c), d), impl(and(a, b), c)], [a, b], [d]) -> true (stack delle regole false!!!)
+
+% check([impl(and(a, b), c)], [a, b], [d]) -> no more results
+% check([impl(and(a, b), c), impl(and(a, b), c)], [a, b], [d]) -> no more results
+
+% check([], [a, b], [a]) -> true
+% check([], [a, b,c], [a,d]) -> true
+
+% check([impl(and(and(a, b), c), d)], [a, b, c], [d]) -> true
+% check([impl(and(and(a, b), c), d), impl(and(c,d), e)], [a, b, c], [e]) -> true
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Check} & \textbf{Risultato} \\ \hline
+\texttt{check([impl(and(a, c), d), impl(and(a, b), c)], [a, b], [d])}\textsuperscript{1} & true \\ \hline
+\texttt{check([impl(and(a, b), c), impl(and(a, c), d)], [a, b], [d])}\textsuperscript{2} & true \\ \hline
+\texttt{check([impl(and(a, b), c)], [a, b], [d])}\textsuperscript{3} & NMR \\ \hline
+\texttt{check([impl(and(a, b), c), impl(and(a, b), c)], [a, b], [d])}\textsuperscript{4} & NMR \\ \hline
+\texttt{check([],[a, b],[a])}\textsuperscript{5} & true \\ \hline
+\texttt{check([],[a, b, c],[a, d])}\textsuperscript{6} & true \\ \hline
+\texttt{check([impl(and(and(a, b), c), d)], [a, b, c], [d])}\textsuperscript{7} & true \\ \hline
+\texttt{check([impl(and(and(a,b),c),d),impl(and(c,d),e)],[a,b,c],[e])}\textsuperscript{8} & true \\ \hline
+\end{tabular}
+\caption{Risultati dei test esercizio 1}
+\end{table}
+
+
+Vengono presi in esame diverse combinazioni di liste di implicazioni, regole da cui partire e goal. Questa breve lista serve a esplicitare in quali casi il check riesca ad applicare le regole ed arrivare all'obiettivo preposto.
+Quando si ottiene un NMR\textsuperscript{3,4} ("no more results") significa che l'interprete del linguaggio non è riuscito ad arrivare ad un risultato positivo e quindi non è stato possibile trovare almeno un goal appartenente all'insieme dei fatti ampliati.
+Il primo esempio\textsuperscript{1} mostra come il ragionatore sia capace di arrivare al goal preposto (d) anche se le regole non sono ordinate, questo è possibile grazie allo stack delle implicazioni che inizialmente sono risultate come non verificabili.
+Quinto\textsuperscript{5} e sesto\textsuperscript{6} esempio sono i casi in cui il check è già verificato senza dover fare alcun passo e quindi daranno subito \texttt{true}.
 
 \cleardoublepage
 
 \section*{Esercizio 2}
 
-\paragraph{Problema.} Descrizione del problema affrontato. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\paragraph{Problema.} In questo esercizio viene analizzato il problema della pianificazione, partendo da uno stato iniziale del mondo e cercando di arrivare a uno stato finale desiderato, definito come stato Goal. Ogni azione è caratterizzata da:
+\begin{enumerate}
+    \item Nome univoco
+    \item Precondizione (sottoinsieme dello stato del mondo)
+    \item Postcondizione (sottoinsieme dello stato del mondo risultante dopo l'azione)
+    \begin{itemize}
+        \item Quelli che vengono rimossi dallo stato del mondo (post condizioni delete)
+        \item Quelli che vengono aggiunti allo stato del mondo (post condizioni add)
+    \end{itemize}
+\end{enumerate}
 
-\paragraph{Metodo.} Descrizione degli algoritmi utilizzati per la risoluzione del problema. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+Esempi di azioni:
+\begin{enumerate}
+    \item \texttt{grab(X)}: afferra il blocco X
+    \item \texttt{put(X,Y)}: posiziona il blocco X su Y
+    \item \texttt{putOnTable(X)}: posiziona il blocco X sul tavolo
+\end{enumerate}
 
-\paragraph{Strutture dati.} Descrizione delle strutture dati utilizzate. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-\paragraph{Funzioni.} Descrizione delle funzioni realizzate specificando anche quali sono pubbliche e quali sono private. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+In seguito andrò ad elencare le azioni che possono essere intraprese con le relative precondizioni e post condizioni da applicare alla lista degli stati.
+
+\begin{enumerate}
+    \item \texttt{grab(X)}:
+    \begin{itemize}
+        \item \textbf{Precondizioni:} \texttt{empty, clear(X)}
+        \item \textbf{Post condizioni delete:} \texttt{empty}
+        \item \textbf{Post condizioni add:} \texttt{holding(X)}
+    \end{itemize}
+
+    \item \texttt{put(X,Y)}:
+    \begin{itemize}
+        \item \textbf{Precondizioni:} \texttt{holding(X), clear(Y)}
+        \item \textbf{Post condizioni delete:} \texttt{holding(X), clear(Y)}
+        \item \textbf{Post condizioni add:} \texttt{empty, clear(X), on(X,Y)}
+    \end{itemize}
+
+    \item \texttt{putOnTable(X)}:
+    \begin{itemize}
+        \item \textbf{Precondizioni:} \texttt{holding(X)}
+        \item \textbf{Post condizioni delete:} \texttt{holding(X)}
+        \item \textbf{Post condizioni add:} \texttt{empty, clear(X), onTable(X)}
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Stati:}
+I predicati per descrivere gli stati sono rappresentati come liste e includono le seguenti descrizioni:
+\begin{itemize}
+    \item \texttt{on(X,Y)}: il blocco X è appoggiato su Y
+    \item \texttt{onTable(X)}: il blocco X è sul tavolo
+    \item \texttt{empty}: il braccio è libero
+    \item \texttt{holding(X)}: il braccio ha in mano il blocco X
+    \item \texttt{clear(X)}: il blocco X è libero e non ha nulla sopra
+\end{itemize}
+
+Gli stati verranno inseriti all'interno della rappresentazione corrente e futura del mondo che poi dovranno essere elaborati dal pianificatore per poter applicare le azioni ed avere il goal a cui puntare.
+
+\textbf{Esempio di stato iniziale:}
+\begin{center}
+    [empty, on(b3,b1), onTable(b1), onTable(b2), clear(b3), clear(b2)]
+\end{center}
+
+\textbf{Esempio di stato finale:}
+\begin{center}
+    [empty, on(b1,b2), on(b2,b3), onTable(b3), clear(b1)]
+\end{center}
+
+La funzione block permette di dichiarare quali e quanti sono i blocchi sono presenti sul tavolo.
+La funzione \texttt{block(X)} può essere definita come segue:
+\begin{itemize}
+    \item \texttt{block(X)} if \texttt{X = b1}
+    \item \texttt{block(X)} if \texttt{X = b2}
+    \item \texttt{block(X)} if \texttt{X = b3}
+\end{itemize}
+oppure in forma semplificata:
+\begin{itemize}
+    \item \texttt{block(b1)}
+    \item \texttt{block(b2)}
+    \item \texttt{block(b3)}
+\end{itemize}
+
+Se per esempio si prova a controllare quali blocchi sono presenti sul tavolo tramite la query \texttt{[block(X), X]} il risultato sarà \texttt{[true,b1], [true,b2], [true,b3]}.
+
+\paragraph{Metodo.} Il metodo sviluppato per risolvere il problema del pianificatore si basa su un approccio logico-funzionale, implementato all'interno del linguaggio \texttt{Fabula}. Il sistema utilizza il metodo della forward chaining per generare piani a partire da un insieme di regole e predicati.
+
+Sono state definite delle regole per le operazioni di base, come ad esempio \texttt{grab} e \texttt{put}, le quali modellano le azioni eseguibili nel dominio dei blocchi. Queste azioni sono rappresentate come predicati logici che il pianificatore utilizza per costruire un percorso di azioni che portano dallo stato iniziale a uno stato obiettivo.
+Ogni stato è descritto da una serie di predicati, tra cui \texttt{block}, \texttt{subset} e \texttt{removeElement}, che specificano la relazione tra i blocchi e il loro posizionamento. Quando una regola si applica, vengono eseguite le operazioni necessarie per aggiornare lo stato corrente.
+Il pianificatore ha come primo caso il controllo dello stato finale della computazione che potrebbe essere terminata nel caso in cui essa sia un sottoinsieme dello stato corrente.
+Durate l'applicazione della forward chaining il pianificatore controlla che esista almeno una regola da poter applicare le cui pre condizioni sono compatibili con lo stato corrente della computazione, dopo aver applicato le post condizioni passa alla fase successiva per trovare la futura azione da applicare. 
+
+Esistono diverse strategie per scegliere quale sia il migliore percorso da seguire per poter arrivare all'obiettivo del goal. La ricerca in profondità prevede di sfruttare la ricorsione per allontanarsi velocemente dalla radice dell'albero di decisione, ha il vantaggio di essere più efficiente a livello spaziale, ma al tempo stesso i piani che vengono generati non sono minimi.
+La ricerca in ampiezza al contrario sviluppa l'albero di decisione un livello alla volta, dando in output il percorso minimo per arrivare al goal, ma con lo svantaggio di dover mantenere in memoria i nodi che sono già stati attraversati.
+Una tecnica che riesce a sfruttare le caratteristiche di entrambe è la ricerca iterativa in profondità, in cui viene effettuata una DFS imponendo un limite di profondità massima, se non si è arrivati ad un piano completo si itera la ricerca, aumentando il limite.
+
+\paragraph{Strutture dati.} La base del pianificatore sono le azioni, funzioni che hanno il compito di aggiornare lo stato corrente della computazione sfruttando quelle che sono le necessarie pre e post condizioni. Le funzioni hanno arietà 3 e hanno danno come input i blocchi da cui da cui partire, lo stato Iniziale prima della computazione, lo stato finale dopo l'esecuzione dell'azione e il piano corrente. L'output sarà il piano aggiornato tramite una \texttt{append/2}.
+Le azioni accettano come input lo stato del mondo corrente e quello finale prefissato, in entrambi i casi si tratta di una lista contenente i predicati descritti in precedenza.
+Il Piano a sua volta sarà sempre una lista di stati in cui però verranno inserite le azioni effettuate dal pianificatore per arrivare allo stato finale, il piano è frutto delle pre e post condizioni presenti nelle regole.
+
+Per velocizzare la computazioni si possono avere strutture di supporto come degli stack che contengono gli stati già visitati in precedenza per non incorrere in dei loop infiniti.
+
+\paragraph{Funzioni.} All'utente finale verranno esposte 2 funzioni trace/3 e trace\_limit/4. La prima funzione pubblica andrà ad applicare in moto iterativo le varie azioni finché non si otterrà un risultato che verrà dato sotto forma di piano. La signature della funzione prevede di inserire lo stato di partenza, lo stato finale a cui si vuole arrivare e il piano che successivamente dovrà essere letto. La computazione si fermerà quando lo stato corrente sarà un sottoinsieme dello stato finale.
+
 \begin{lstlisting}
-ᐅ abs/1 function
-abs(X) = X  if integer(X), X ≥ 0
-abs(X) = -X if integer(X), X < 0
-
-ᐅ member/2 function
-member([H | _]) = H
-member([_ | R]) = member(R)
+ᐅ trace/3 function first case
+trace(Stato, StatoFinale, Piano) = Piano
+    if subset(StatoFinale, Stato)
+ᐅ trace/3 function second case
+trace(Stato, StatoFinale, Piano) = Piano2
+    if Piano1 = try_action(Stato, StatoNuovo, Piano),
+       Piano2 = trace(StatoNuovo, StatoFinale, Piano1)
 \end{lstlisting}
-Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-\begin{figure}[t]
+Dato la natura esponenziale della computazione è stata idea anche la seconda funzione che introduce un quarto input che consiste in un contatore che forza il programma a cercare una soluzione con soltanto un numero prestabilito di passi.
+
 \begin{lstlisting}
-ᐅ member/2 function
-member([H | _]) = H
-member([_ | R]) = member(R)
+ᐅ trace_limit/3 function first case
+trace_limit(Stato, StatoFinale, Piano, N) = Piano
+    if subset(StatoFinale, Stato)
 
-ᐅ append/2 function
-append([], R)      = R
-append([H | T], R) = [H | append(T, R)]
-
-ᐅ length/1 function
-length([])      = 0
-length([_ | R]) = 1 + length(R)
+ᐅ trace_limit/3 function first case
+trace_limit(Stato, StatoFinale, Piano, N) = Piano2
+    if N > 0,
+       Piano1 = try_action(Stato, StatoNuovo, Piano),
+       Piano2 = trace_limit(StatoNuovo,
+                            StatoFinale, 
+                            Piano1, N-1)
 \end{lstlisting}
-\caption{Un sorgente in una figura}
+
+Una ricerca iterativa in profondità può essere ottenuta tramite le seguenti funzioni, bisognerà partire da un limite iniziale, per esempio 0.
+
+\begin{lstlisting}
+ᐅ planIter function
+planIter(StatoIniziale, StatoFinale, N) =
+    try_plan(StatoIniziale, StatoFinale, N)
+
+ᐅ planIter private function first case
+try_plan(StatoIniziale, StatoFinale, N) =
+    trace_limit(StatoIniziale, StatoFinale, [], N)
+
+    ᐅ planIter private function second case
+try_plan(StatoIniziale, StatoFinale, N) =
+    planIter(StatoIniziale, StatoFinale, N + 1)
+\end{lstlisting}
+
+Le funzioni private prevedono le regole da applicare nella computazione e una funzione di supporto chiamata try\_action il cui scopo è quello di provare iterativamente ogni regola. Gli input saranno lo stato iniziale, lo stato finale/obiettivo e il piano corrente.
+
+\begin{lstlisting}
+ᐅ try_action private function first case
+try_action(StatoIniziale, StatoFinale, Plan)
+    = putOnTable(X, StatoIniziale, StatoFinale, Plan)
+    
+ᐅ try_action private function second case
+try_action(StatoIniziale, StatoFinale, Plan)
+    = grab(X, StatoIniziale, StatoFinale, Plan)
+    
+ᐅ try_action private function third case
+try_action(StatoIniziale, StatoFinale, Plan)
+    = put(X, Y, StatoIniziale, StatoFinale, Plan)
+    
+ᐅ try_action private function fourth case
+trace_limit(Stato, StatoFinale, Piano, N) = Piano
+    if subset(StatoFinale, Stato)
+\end{lstlisting}
+
+Successivamente propongo una implementazione delle funzioni che hanno come obiettivo  l'implementare le 3 azioni necessarie per poter usare il pianificatore. Queste funzioni modellano le azioni di afferrare, posizionare su un altro blocco e posizionare sul tavolo. Ciascuna funzione opera prendendo uno stato iniziale, uno stato finale e un piano d'azione da aggiornare, eseguendo le modifiche necessarie allo stato e generando una sequenza di azioni da seguire.
+\begin{lstlisting}
+ᐅ grab/4 function private function
+grab(X, StatoIniziale, StatoFinale, Plan) = 
+    append(Plan, [grab(Stato)])
+   if block(X),
+    Stato = X,
+    subset([empty, clear(X)],StatoIniziale),
+    StatoFinaleIntermedio = append(StatoIniziale, 
+                                  [holding(X)]),
+    StatoFinale = removeElement(StatoFinaleIntermedio, 
+                                [empty])
+\end{lstlisting}
+La funzione \texttt{grab} rappresenta l'azione di afferrare un blocco X da uno stato iniziale. Le condizioni iniziali richiedono che X debba essere un blocco, lo stato iniziale debba contenere un tavolo vuoto e il blocco X debba essere libero da altri oggetti.
+\begin{lstlisting}
+ᐅ put/5 function private function
+put(X, Y, StatoIniziale, StatoFinale, Plan) = 
+    append(Plan, [put(Stato)])
+    if block(X),
+    block(Y),
+    Y ≠ X,
+    Stato = [X, Y],
+    subset([holding(X), clear(Y)], StatoIniziale),
+    StatoFinaleIntermedio = append(StatoIniziale, 
+                                   [on(X, Y), 
+                                   clear(X), 
+                                   empty]),
+    StatoFinale = removeList(StatoFinaleIntermedio, 
+                            [holding(X), 
+                            clear(Y)])
+\end{lstlisting}
+La funzione \texttt{put} modella l'azione di posizionare il blocco X sopra il blocco Y. Le condizioni iniziali richiedono che sia X sia Y siano blocchi distinti e che Y sia libero da altri blocchi, mentre X deve essere già in mano.
+\begin{lstlisting}
+ᐅ putOnTable/4 private function
+putOnTable(X, StatoIniziale, StatoFinale, Plan) = 
+append(Plan, [putOnTable(Stato)])
+    if block(X),
+    Stato = X,
+    subset([holding(X)], StatoIniziale),
+    StatoFinaleIntermedio = append(StatoIniziale, 
+                                  [onTable(X), 
+                                  clear(X), 
+                                  empty]),
+    StatoFinale = removeElement(StatoFinaleIntermedio, 
+                                [holding(X)])
+\end{lstlisting}
+La funzione \texttt{putOnTable} descrive l'azione di posizionare il blocco X sul tavolo. Le condizioni iniziali richiedono che X sia blocco e sia già in mano.
+
+
+\paragraph{Esempi.} 
+
+% trace_limit( [clear(b1), onTable(b1), clear(b2), onTable(b2), empty],[on(b1, b2), empty], Piano, 10)
+% [grab(b1),put([b1,b2])]
+% [grab(b1),put([b1,b2]),grab(b1),putOnTable(b1),grab(b1),putOnTable(b1),grab(b1),putOnTable(b1)]
+
+
+\section*{Esercizio 3}
+
+\paragraph{Problema.} Il problema consiste nella creazione di un interprete in grado di comprendere e processare frasi in linguaggio naturale riguardanti la posizione di blocchi su un tavolo.Il programma implementa questo attraverso un parser che converte la frase in un albero sintattico astratto (AST) e successivamente lo semplifica nella forma logica finale, utilizzando regole di inferenza per identificare gli oggetti in base alle loro proprietà.
+
+\paragraph{Metodo.}
+
+\paragraph{Strutture dati.} La principale struttura dati utilizzata nell'esercizio è l'albero di sintassi astratta (AST in Inglese) che consiste in un albero binario gerarchico dove viene rappresentato il modo astratto la sintassi del testo che gli viene dato come input.
+
+La struttura AST di \texttt{[the, red, block, is, on, b1]} può essere scritta formalmente come:
+
+\[
+[\text{on}(\text{object}(\text{block},[attribute(color,red)]),\text{object}(b1,[]))]
+\]
+
+Questa struttura può essere rappresentata graficamente come un albero:
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    level 1/.style={sibling distance=50mm},
+    level 2/.style={sibling distance=90mm},
+    level 3/.style={sibling distance=40mm},
+    every node/.style={align=center}
+]
+\node {Lista}
+    child {
+        node {[]}
+    }
+    child {
+        node {on}
+        child {
+            node {object}
+            child {
+                node {block}
+            }
+            child {
+                node {[attribute]}
+                child {
+                    node {color}
+                }
+                child {
+                    node {red}
+                }
+            }
+        }
+        child {
+            node {object}
+            child {
+                node {b1}
+            }
+            child {
+                node {[]}
+            }
+        }
+    };
+\end{tikzpicture}
+\caption{Rappresentazione ad albero della struttura AST per la relazione on()}
+\label{fig:ast_structure}
 \end{figure}
 
-Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\paragraph{Funzioni.}
+\paragraph{Esempi.}
 
-\paragraph{Esempi.} Descrizione di alcuni esempi di utilizzo. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+% a([b1, is, on, the, table]) = [[],on(object(b1,[]),object(table,[]))]
+% ask([onTable(b1)], [where, is, b1, '?']) = [b1,is,on,the,table,'.']
+% ask([on(b1, b2)], [where, is, b2, '?']) = [b2,is,on,b1,'.']
+% tell([], [b1, is, on, the, table, '.'])
+% ask(tell([], [b1, is, on, the, table, '.']), [where, is, b1, '?'])
+
+
+\section*{Appendice}
+\paragraph{Forward Chaining} Iniziando dai dati disponibili e usa le regole di inferenza per ricavare ulteriori dati fino al raggiungimento di un certo obiettivo. Un motore inferenziale che usa Forward Chaining ad ogni passo va alla ricerca delle regole di inferenza tali per cui la premessa è nota essere vera, dopodiché può dedurre la conseguenza e aggiungerla come nuovo dato a disposizione.
+\paragraph{Backward chaining} Iniziando da una lista di obiettivi (o ipotesi) e ragiona in modo inverso rispetto alla Forward Chaining, partendo dalle conseguenze delle regole di inferenza disponibili e verificando se le premesse sono note essere vere.
+
+\section*{Funzioni frequentemente utilizzate all'interno del documento}
+
+Le seguenti funzioni di supporto eseguono operazioni ricorrenti nella risoluzione del problema e sono state implementate per facilitare il loro riutilizzo in futuro.
+\paragraph{member/2}
+Funzione per controllare se un elemento è presente all'interno di una lista.
+\begin{lstlisting}
+ᐅ member/2 pravate function 
+member([H | _], H) = true
+member([_ | T], H) = member(T, H)
+\end{lstlisting}
+
+\paragraph{anyMember/2}
+Funzione per controllare se almeno un elemento del primo membro è presente nel secondo, sfrutta la funzione member/2.
+\begin{lstlisting}
+ᐅ anyMember/2 pravate function
+anyMember([H | _], L) = true if member(L, H)
+anyMember([_ | T], L) = anyMember(T, L)
+\end{lstlisting}
+
+\paragraph{subset/2}
+Funzione per constatare se una lista è completamente contenuta in un'altra, utile quando bisogna confrontare 2 insiemi.
+\begin{lstlisting}
+ᐅ subset/2 pravate function
+subset([], _) = true
+subset([H | T], S) if member(S, H), subset(T, S)
+\end{lstlisting}
+
+\paragraph{andList/2}
+Funzione per trasformare uno o più \texttt{and} annidati in una lista.
+\begin{lstlisting}
+ᐅ andList/2 pravate function
+andList(P) = andList1(P, [])
+andList1(A, L)         = [A | L] if symbol(A)
+andList1(and(A, B), L) = andList1(A, andList1(B, L))
+\end{lstlisting}
+
+\paragraph{orList/2}
+Funzione per trasformare uno o or \texttt{or} annidati in una lista.
+\begin{lstlisting}
+ᐅ orList/2 pravate function
+orList(P) = orList1(P, [])
+orList1(A, L)         = [A | L] if symbol(A)
+orList1(or(A, B), L) = orList1(A, orList1(B, L))
+\end{lstlisting}
+
+\paragraph{normalizeNot/1}
+Funzione che ha il compito di gestire il caso in cui una proposizione sia doppiamente negata.
+\begin{lstlisting}
+normalizeNot(not(not(P))) = P
+normalizeNot(not(P)) = not(P)
+normalizeNot(P) = P
+\end{lstlisting}
+
+\paragraph{removeElement/1}
+Funzione  per rimuovere un elemento da una lista.
+\begin{lstlisting}
+removeElement([H | T], [H]) = T
+removeElement([H | T], [X]) = [H | removeElement(T, [X])]
+\end{lstlisting}
+
+\paragraph{removeList/1}
+Funzione per rimuovere una sottolista da un'altra lista.
+\begin{lstlisting}
+removeList(Stato, []) = Stato
+removeList(Stato, [H | T]) = 
+        removeList(removeElement(Stato, [H]), T)
+\end{lstlisting}
+
+\paragraph{checkNoDuplicates/1}
+Funzione per controllare la presenza di un elemento duplicato all'interno di un piano.
+\begin{lstlisting}
+checkNoDuplicates(PlanParziale, Plan) = true
+    if not_member(PlanParziale, Plan)
+\end{lstlisting}
+
+\paragraph{not\_member/1}
+Funzione per controllare iterativamente che ogni elemento della prima lista non sia presente nella seconda.
+\begin{lstlisting}
+not_member([], _) = true
+not_member([H | T], Plan) = not_member(T, Plan)
+    if not_in(H, Plan)
+\end{lstlisting}
+
+\paragraph{not\_in/1}
+Funzione di appoggio per controllare che un elemento non faccia parte di una lista.
+\begin{lstlisting}
+not_in(_, []) = true
+not_in(X, [H | T]) = not_in(X, T)
+    if X ≠ H
+\end{lstlisting}
+
+Nei vari esercizi nel caso in cui venissero utilizzate funzioni private con la medesima firma non verranno riproposte una seconda volta e verrà utilizzato il precedente elenco come riferimento per la loro implementazione
+
 
 \end{document}
