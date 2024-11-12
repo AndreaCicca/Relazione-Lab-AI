@@ -7,13 +7,12 @@ a(A) = R
 ᐅ Noun Phrase
 np(NP) = R
     if det(NP) = R1, n(R1) = R
-
+ᐅ Verb Phrase
 vp(VP) = R
     if abe(VP) = R1, pp(R1) = R
-
+ᐅ Prepositional Phrase
 pp(PP) = R
     if PP = [on | R1], np(R1) = R
-
 abe([B | R]) = R
     if be(B)
 
