@@ -1,43 +1,51 @@
-ᐅ Backward chaining
+ᐅ Predicato principale
+check(ListaImpl, RegoleIniziali, RegoleFinali) = check_back(ListaImpl, RegoleIniziali, RegoleFinali, [])
 
-ᐅ andList/2 function (trasforma una formula and anche ricorsiva in una lista di elementi)
+ᐅ Caso base: il goal è già nei fatti iniziali
+check_back(_, RegoleIniziali, RegoleFinali, _) if subset(RegoleFinali, RegoleIniziali)
+
+ᐅ Caso base: il goal è una disgiunzione e almeno uno dei disgiunti è vero
+check_back(_, RegoleIniziali, RegoleFinali, _) if anyMember(orList(RegoleFinali), RegoleIniziali)
+
+ᐅ Caso ricorsivo: prova a dimostrare il goal corrente
+check_back(ListaImpl, RegoleIniziali, [Goal | RestGoals], Visited) if
+    member(ListaImpl, impl(Antecedente, Goal)),
+    not_member(Visited, Goal),
+    check_back(ListaImpl, RegoleIniziali, andList(Antecedente), [Goal | Visited]),
+    check_back(ListaImpl, RegoleIniziali, RestGoals, [Goal | Visited])
+
+ᐅ not_member function - verifica che un elemento NON sia presente nella lista
+not_member([], _) = true
+not_member([H | T], X) = not_member(T, X) if H ≠ X
+
+ᐅ andList function
 andList(P) = andList1(P, [])
-andList1(A, L)         = [A | L] if symbol(A)
+andList1(A, L) = [A | L] if symbol(A)
 andList1(and(A, B), L) = andList1(A, andList1(B, L))
 
-ᐅ orList/2 function (trasforma una formula or anche ricorsiva in una lista di elementi)
+ᐅ orList function
 orList(P) = orList1(P, [])
-orList1(A, L)         = [A | L] if symbol(A)
+orList1(A, L) = [A | L] if symbol(A)
 orList1(or(A, B), L) = orList1(A, orList1(B, L))
 
-ᐅ member/2 function (verifica se una lista conrienta un elemento)
+ᐅ member function
 member([H | _], H) = true
 member([_ | T], H) = member(T, H)
 
-ᐅ anyMember/2 function (Verifica se uno degli elementi di una lista è presente in un'altra lista)
+ᐅ anyMember function
 anyMember([H | _], L) = true if member(L, H)
 anyMember([_ | T], L) = anyMember(T, L)
 
-ᐅ append/1 function 
-append([], R)      = R
-append([H | T], R) = [H | append(T, R)]
-
-ᐅ length/1 function
-length([])      = 0
-length([_ | T]) = 1 + length(T)
-
-ᐅ subset/2 function
+ᐅ subset function
 subset([], _) = true
 subset([H | T], S) if member(S, H), subset(T, S)
 
+ᐅ normalizeNot function
 normalizeNot(not(not(P))) = P
 normalizeNot(not(P)) = not(P)
 normalizeNot(P) = P
 
-tail([H | T]) = T
-head([H | T]) = H
-
-ᐅ -/1, +/2, */2 operators
+ᐅ Operatori
 - P = not(P)      if proposition(P)
 L + R = or(L, R)  if proposition(L), proposition(R)
 L * R = and(L, R) if proposition(L), proposition(R)

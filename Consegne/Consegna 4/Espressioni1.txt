@@ -1,0 +1,63 @@
+ᐅpoly(x, 4, [4,7,0, 0, 9]) -> poliniomio 4 + 7X + 9X^4
+
+
+ᐅ Operatori
+
+'+'(X, Y) = sum(X, Y)
+'*'(X, Y) = prod(X, Y)
+
+
+sum(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
+    poly(x, MaxGrado, SommaListe) if
+        MaxGrado = max(GradoX, GradoY),
+        ListaXEstesa = extend(ListaX, MaxGrado + 1),
+        ListaYEstesa = extend(ListaY, MaxGrado + 1),
+        SommaListe = sumLists(ListaXEstesa, ListaYEstesa)
+
+extend(Lista, Len) = Lista if length(Lista) = Len
+extend(Lista, Len) = extend([0 | Lista], Len) if length(Lista) < Len
+
+sumLists([], []) = []
+sumLists([H1 | T1], [H2 | T2]) = [H1 + H2 | sumLists(T1, T2)]
+
+max(X, Y) = X if X > Y
+max(X, Y) = Y if Y >= X
+
+
+prod(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
+    poly(x, GradoX + GradoY, ProdottoListe) if
+        LunghezzaRisultato = GradoX + GradoY + 1,
+        ListaZeri = createZeros(LunghezzaRisultato),
+        ProdottoListe = prodLists(ListaX, ListaY, ListaZeri, 0)
+
+createZeros(0) = []
+createZeros(N) = [0 | createZeros(N - 1)] if N > 0
+
+prodLists([], _, Acc, _) = Acc
+prodLists([H1 | T1], Lista2, Acc, Offset) = 
+    prodLists(T1, Lista2, NuovoAcc, Offset + 1) if
+        TempAcc = prodSingleTerm(H1, Lista2, Acc, Offset),
+        NuovoAcc = TempAcc
+
+
+prodSingleTerm(_, [], Acc, _) = Acc
+prodSingleTerm(Coeff, [H | T], Acc, Offset) = 
+    prodSingleTerm(Coeff, T, NuovoAcc, Offset + 1) if
+        Prodotto = Coeff * H,
+        NuovoAcc = updateAtIndex(Acc, Offset, Prodotto)
+
+updateAtIndex([], _, _) = []
+updateAtIndex([H | T], 0, Val) = [H + Val | T]
+updateAtIndex([H | T], Idx, Val) = [H | updateAtIndex(T, Idx - 1, Val)] if Idx > 0
+
+length([]) = 0
+length([_ | T]) = 1 + length(T)
+
+
+diff(poly(x, Grado, Lista)) = 
+    poly(x, Grado - 1, ListaDerivata) if
+        ListaDerivata = diffList(Lista, 0)
+
+diffList([], _) = []
+diffList([_ | T], 0) = diffList(T, 1)
+diffList([H | T], Exp) = [H * Exp | diffList(T, Exp + 1)] if Exp > 0
