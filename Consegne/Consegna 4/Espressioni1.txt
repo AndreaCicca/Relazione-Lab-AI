@@ -4,20 +4,26 @@
 ᐅ Operatori
 
 '+'(X, Y) = sum(Y , poly(x, 0, [X]))
-  if integer(X)
+  if integer(X),
+  isPoly(Y)
 
 '+'(X, Y) = sum(X , poly(x, 0, [Y]))
-  if integer(Y)
+  if integer(Y),
+  isPoly(X)
 
-'+'(X, Y) = sum(X, Y)
+'+'(X, Y) = sum(X, Y) if isPoly(X), isPoly(Y)
 
 '*'(X, Y) = prod(Y , poly(x, 0, [X]))
-  if integer(X)
+  if integer(X),
+  isPoly(Y)
 
 '*'(X, Y) = prod(X , poly(x, 0, [Y]))
-  if integer(Y)
+  if integer(Y),
+  isPoly(X)
 
-'*'(X, Y) = prod(X, Y)
+'*'(X, Y) = prod(X, Y) if isPoly(X), isPoly(Y)
+
+isPoly(X) = true if X = poly(Var, Grad, Lista)
 
 
 sum(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
