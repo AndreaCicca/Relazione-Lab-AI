@@ -3,7 +3,20 @@
 
 ᐅ Operatori
 
+'+'(X, Y) = sum(Y , poly(x, 0, [X]))
+  if integer(X)
+
+'+'(X, Y) = sum(X , poly(x, 0, [Y]))
+  if integer(Y)
+
 '+'(X, Y) = sum(X, Y)
+
+'*'(X, Y) = prod(Y , poly(x, 0, [X]))
+  if integer(X)
+
+'*'(X, Y) = prod(X , poly(x, 0, [Y]))
+  if integer(Y)
+
 '*'(X, Y) = prod(X, Y)
 
 

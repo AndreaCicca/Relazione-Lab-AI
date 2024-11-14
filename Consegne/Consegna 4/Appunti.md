@@ -37,5 +37,9 @@ z^4+7*x+y ->
 - polinomi in x,,y,z ... (con funzioni ord/1) con coefficienti interi somme e prodotti
 - quello di prima con le derivate
 ---
-- numeri razionali -> diff/((x^3+5*y-1)/(z^4+7*x+y), y)
+- numeri razionali 
+
+-3/4 -> rat(-3,4)
+
 - gcd tra polinomi
+- sintassi latex portray
