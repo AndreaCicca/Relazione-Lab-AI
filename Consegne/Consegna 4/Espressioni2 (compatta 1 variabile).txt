@@ -3,6 +3,9 @@
 
 '^'(X, Y) = poly(x, Y, [k(Y, 1)]) if X = x, integer(Y)
 
+'+'(x, Number) = poly(x, 0, [k(0, Number)]) if integer(Number)
+'+'(Number, x) = poly(x, 0, [k(0, Number)]) if integer(Number)
+
 ᐅ Aggiungere una regola per sommare un polinomio con un intero
 '+'(poly(Var, Grado, Lista), Intero) = 
     poly(Var, Grado, NuovaLista) if 
@@ -15,7 +18,22 @@
         NuovaLista = mergeSparse([k(0, Intero)], Lista)
 
 '+'(X, Y) = Z if 
-    Z = sum(X, Y),
+    isPoly(X),
+    isPoly(Y),
+    Z = sum(X, Y)
+
+'*'(X, Y) = Z if 
+    isPoly(X),
+    integer(Y),
+    Z = prod(X, poly(x, 0, [k(0, Y)]))
+
+'*'(X, Y) = Z if 
+    isPoly(Y),
+    integer(X),
+    Z = prod(poly(x, 0, [k(0, X)]), Y)
+
+'*'(X, Y) = Z if 
+    Z = prod(X, Y),
     isPoly(Z)
 
 isPoly(X) = true if X = poly(Var, Grad, Lista)
