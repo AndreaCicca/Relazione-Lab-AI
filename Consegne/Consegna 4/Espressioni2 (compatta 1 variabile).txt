@@ -1,24 +1,22 @@
 ᐅ Operatori
 
-'+'(X, Y) = sum(Y , poly(x, 0, [X]))
-  if integer(X),
-  isPoly(Y)
 
-'+'(X, Y) = sum(X , poly(x, 0, [Y]))
-  if integer(Y),
-  isPoly(X)
+'^'(X, Y) = poly(x, Y, [k(Y, 1)]) if X = x, integer(Y)
 
-'+'(X, Y) = sum(X, Y) if isPoly(X), isPoly(Y)
+ᐅ Aggiungere una regola per sommare un polinomio con un intero
+'+'(poly(Var, Grado, Lista), Intero) = 
+    poly(Var, Grado, NuovaLista) if 
+        integer(Intero),
+        NuovaLista = mergeSparse(Lista, [k(0, Intero)])
 
-'*'(X, Y) = prod(Y , poly(x, 0, [X]))
-  if integer(X),
-  isPoly(Y)
+'+'(Intero, poly(Var, Grado, Lista)) = 
+    poly(Var, Grado, NuovaLista) if 
+        integer(Intero),
+        NuovaLista = mergeSparse([k(0, Intero)], Lista)
 
-'*'(X, Y) = prod(X , poly(x, 0, [Y]))
-  if integer(Y),
-  isPoly(X)
-
-'*'(X, Y) = prod(X, Y) if isPoly(X), isPoly(Y)
+'+'(X, Y) = Z if 
+    Z = sum(X, Y),
+    isPoly(Z)
 
 isPoly(X) = true if X = poly(Var, Grad, Lista)
 
