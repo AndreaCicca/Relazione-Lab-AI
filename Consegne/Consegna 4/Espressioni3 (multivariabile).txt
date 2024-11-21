@@ -1,0 +1,91 @@
+ᐅpoly(x, 4, [4,7,0, 0, 9]) -> poliniomio 4 + 7X + 9X^4
+
+member([H | _]) = H
+member([_ | R]) = member(R)
+
+ord(_) = [x,y,z]
+
+ᐅ Operatori
+
+'+'(X, Y) = sum(Y , poly(x, 0, [X]))
+  if integer(X),
+  isPoly(Y)
+
+'+'(X, Y) = sum(X , poly(x, 0, [Y]))
+  if integer(Y),
+  isPoly(X)
+
+'+'(X, Y) = sum(X, Y) if isPoly(X), isPoly(Y)
+
+'*'(X, Y) = prod(Y , poly(x, 0, [X]))
+  if integer(X),
+  isPoly(Y)
+
+'*'(X, Y) = prod(X , poly(x, 0, [Y]))
+  if integer(Y),
+  isPoly(X)
+
+'*'(X, Y) = prod(X, Y) if isPoly(X), isPoly(Y)
+
+isPoly(X) = true if X = poly(Var, Grad, Lista)
+
+
+sum(poly(X, GradoX, ListaX), poly(X, GradoY, ListaY)) = 
+    poly(X, MaxGrado, SommaListe) if
+        MaxGrado = max(GradoX, GradoY),
+        SommaListe = mergeSparse(ListaX, ListaY)
+
+mergeSparse([], Lista) = Lista
+mergeSparse(Lista, []) = Lista
+mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
+    [k(E1,C1) | mergeSparse(T1, [k(E2,C2) | T2])] if E1 < E2
+mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
+    [k(E2,C2) | mergeSparse([k(E1,C1) | T1], T2)] if E2 < E1
+mergeSparse([k(E,C1) | T1], [k(E,C2) | T2]) = 
+    [k(E, sumCoeff(C1, C2)) | mergeSparse(T1, T2)]
+
+sumCoeff(poly(X, G1, L1), poly(X, G2, L2)) = sum(poly(X, G1, L1), poly(X, G2, L2))
+sumCoeff(N1, N2) = N1 + N2 if integer(N1), integer(N2)
+
+max(X, Y) = X if X > Y
+max(X, Y) = Y if Y > X
+max(X, Y) = X if X = Y
+
+
+prod(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
+    poly(x, GradoX + GradoY, ProdottoListe) if
+        LunghezzaRisultato = GradoX + GradoY + 1,
+        ListaZeri = createZerosK(LunghezzaRisultato, 0),
+        ProdottoListe = prodLists(ListaX, ListaY, ListaZeri)
+
+createZerosK(0, _) = []
+createZerosK(N, Curr) = [k(Curr,0) | createZerosK(N - 1, Curr + 1)] if N > 0
+
+prodLists([], _, Acc) = Acc
+prodLists([k(E1,C1) | T1], Lista2, Acc) = 
+    prodLists(T1, Lista2, NuovoAcc) if
+        TempAcc = prodSingleTerm(k(E1,C1), Lista2, Acc),
+        NuovoAcc = TempAcc
+
+prodSingleTerm(_, [], Acc) = Acc
+prodSingleTerm(k(E1,C1), [k(E2,C2) | T2], Acc) = 
+    prodSingleTerm(k(E1,C1), T2, NuovoAcc) if
+        Prodotto = C1 * C2,
+        ExpTotale = E1 + E2,
+        NuovoAcc = updateAtIndexK(Acc, ExpTotale, Prodotto)
+
+updateAtIndexK([], _, _) = []
+updateAtIndexK([k(E,C) | T], E, Val) = [k(E,C + Val) | T]
+updateAtIndexK([k(E,C) | T], Idx, Val) = [k(E,C) | updateAtIndexK(T, Idx, Val)] if E < Idx
+
+length([]) = 0
+length([_ | T]) = 1 + length(T)
+
+diff(poly(x, Grado, Lista)) = 
+    poly(x, Grado - 1, ListaDerivata) if
+        ListaDerivata = diffList(Lista)
+
+diffList([]) = []
+diffList([k(0,_) | T]) = diffList(T)
+diffList([k(E,C) | T]) = 
+    [k(E-1, C * E) | diffList(T)] if E > 0

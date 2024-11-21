@@ -10,7 +10,7 @@ poly(x, 4, [4,7,0, 0, 9]) -> poliniomio 4 + 7X + 9X^4
 
 ### Versione Sparsa
 
-poly(x, 4, [[0,4], [1,7], [4,9]]) -> polinomio  in variabile x, di grado 4 : 4 + 7X + 9X^4
+poly(x, 4, [ k(0,4), k(1,7), k(4,9)]) -> polinomio  in variabile x, di grado 4 : 4 + 7X + 9X^4
 
 '+'(X, Y) =  ...
 '*'(X, Y) =  ...
@@ -25,10 +25,7 @@ ord([x,y,z])
 diff/((x^3+5*y-1), y)
 
 x^3+5*y-1 -> poly(x, [-1, poly(y, 1, [0,5]), 0, 1])
-z^4+7*x+y -> 
-    poly(x, 
-        [poly(y, 
-            [poly(z, [0,0,0,0,1]), 1]), 7])
+z^4+7*x+y -> poly(x, [poly(y, [poly(z, [0,0,0,0,1]), 1]), 7])
 
 
 # Cosa fare
@@ -43,3 +40,5 @@ z^4+7*x+y ->
 
 - gcd tra polinomi
 - sintassi latex portray
+
+N/D = rat(N, D)

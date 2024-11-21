@@ -40,30 +40,31 @@ sumLists([], []) = []
 sumLists([H1 | T1], [H2 | T2]) = [H1 + H2 | sumLists(T1, T2)]
 
 max(X, Y) = X if X > Y
-max(X, Y) = Y if Y >= X
+max(X, Y) = Y if Y > X
+max(X, Y) = X if X = Y
 
 
 prod(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
     poly(x, GradoX + GradoY, ProdottoListe) if
         LunghezzaRisultato = GradoX + GradoY + 1,
         ListaZeri = createZeros(LunghezzaRisultato),
-        ProdottoListe = prodLists(ListaX, ListaY, ListaZeri, 0)
+        ProdottoListe = prodLists(ListaX, 0, ListaY, ListaZeri)
 
 createZeros(0) = []
 createZeros(N) = [0 | createZeros(N - 1)] if N > 0
 
-prodLists([], _, Acc, _) = Acc
-prodLists([H1 | T1], Lista2, Acc, Offset) = 
-    prodLists(T1, Lista2, NuovoAcc, Offset + 1) if
-        TempAcc = prodSingleTerm(H1, Lista2, Acc, Offset),
+prodLists([], _, _, Acc) = Acc
+prodLists([H1 | T1], Exp1, Lista2, Acc) = 
+    prodLists(T1, Exp1 + 1, Lista2, NuovoAcc) if
+        TempAcc = prodSingleTerm(H1, Exp1, Lista2, 0, Acc),
         NuovoAcc = TempAcc
 
-
-prodSingleTerm(_, [], Acc, _) = Acc
-prodSingleTerm(Coeff, [H | T], Acc, Offset) = 
-    prodSingleTerm(Coeff, T, NuovoAcc, Offset + 1) if
-        Prodotto = Coeff * H,
-        NuovoAcc = updateAtIndex(Acc, Offset, Prodotto)
+prodSingleTerm(_, _, [], _, Acc) = Acc
+prodSingleTerm(Coeff1, Exp1, [H2 | T2], Exp2, Acc) = 
+    prodSingleTerm(Coeff1, Exp1, T2, Exp2 + 1, NuovoAcc) if
+        Prodotto = Coeff1 * H2,
+        ExpTotale = Exp1 + Exp2,
+        NuovoAcc = updateAtIndex(Acc, ExpTotale, Prodotto)
 
 updateAtIndex([], _, _) = []
 updateAtIndex([H | T], 0, Val) = [H + Val | T]
@@ -78,5 +79,7 @@ diff(poly(x, Grado, Lista)) =
         ListaDerivata = diffList(Lista, 0)
 
 diffList([], _) = []
-diffList([_ | T], 0) = diffList(T, 1)
-diffList([H | T], Exp) = [H * Exp | diffList(T, Exp + 1)] if Exp > 0
+diffList([H | T], Exp) = 
+    diffList(T, Exp + 1) if Exp = 0
+diffList([H | T], Exp) = 
+    [H * Exp | diffList(T, Exp + 1)] if Exp > 0
