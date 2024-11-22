@@ -1,8 +1,3 @@
-ᐅ Somma
-ᐅ poly(x,[k(0,poly(y,[k(0,poly(z,[k(0,8),k(1,6)])),k(1,3)])),k(1,3),k(2,1)])
-
-ᐅ Da quardare: poly(y,[ k(0,4), k(1,7), k(4,9)]) + poly(y,[ k(0,4), k(1,7), k(4,9)]), non gli piace quando non comincia con x
-
 '^'(X, Y) = poly(X,[k(Y, 1)]) if var(X), integer(Y)
 
 '+'(VAR, Number) = poly(VAR, [k(0, Number)]) if integer(Number), var(VAR)
@@ -27,8 +22,26 @@ var(x)
 var(y)
 var(z)
 
+ordinePrecedenza(x, _) = true
+ordinePrecedenza(y, x) = true
+ordinePrecedenza(y, z) = true
+
 isPoly(X) = true if X = poly(Var, Lista)
 
+
+ᐅ member/1
+member([H | _]) = H
+member([_ | R]) = member(R)
+
+sum(poly(Var1, Lista1), poly(Var2, Lista2)) = 
+    poly(Var1, NuovaLista) if
+        Var1 ≠ Var2,
+        ordinePrecedenza(Var1, Var2),
+        NuovaLista = [k(0, poly(Var2, Lista2)) | Lista1]
+
+sum(poly(x, ListaX), poly(x, ListaY)) = 
+    poly(x, NuovaLista) if
+        NuovaLista = mergeSparseMultivar(ListaX, ListaY)
 
 mergeSparse([], Lista) = Lista
 mergeSparse(Lista, []) = Lista
@@ -38,15 +51,6 @@ mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) =
     [k(E2,C2) | mergeSparse([k(E1,C1) | T1], T2)] if E2 < E1
 mergeSparse([k(E,C1) | T1], [k(E,C2) | T2]) = 
     [k(E,C1 + C2) | mergeSparse(T1, T2)]
-
-ᐅ member/1
-member([H | _]) = H
-member([_ | R]) = member(R)
-
-
-sum(poly(x, ListaX), poly(x, ListaY)) = 
-    poly(x, NuovaLista) if
-        NuovaLista = mergeSparseMultivar(ListaX, ListaY)
 
 mergeSparseMultivar([], Lista) = Lista
 mergeSparseMultivar(Lista, []) = Lista
@@ -79,5 +83,3 @@ diffListMultivar([k(E, poly(Var, SubLista)) | T]) =
     [k(E-1, poly(Var, SubListaDerivata)) | diffListMultivar(T)] if
         SubListaDerivata = diffListMultivar(SubLista),
         E > 0
-
-ᐅ Prodotto
