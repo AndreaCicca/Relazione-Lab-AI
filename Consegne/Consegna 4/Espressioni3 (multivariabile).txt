@@ -18,6 +18,18 @@
     if isPoly(X),
     isPoly(Y)
 
+ᐅ caso simbolo + poly
+
+'+'(X, poly(Var, Lista)) = 
+    sum(poly(X, [k(0, 1)]), poly(Var, Lista)) if
+    var(X),
+    var(Var)
+
+'+'(poly(Var, Lista), X) = 
+    sum(poly(Var, Lista), poly(X, [k(0, 1)])) if
+    var(X),
+    var(Var)
+
 var(x)
 var(y)
 var(z)
