@@ -303,6 +303,7 @@ Ogni stato è descritto da una serie di predicati, tra cui \texttt{block}, \text
 Il pianificatore ha come primo caso il controllo dello stato finale della computazione che potrebbe essere terminata nel caso in cui essa sia un sottoinsieme dello stato corrente.
 Durate l'applicazione della forward chaining il pianificatore controlla che esista almeno una regola da poter applicare le cui pre condizioni sono compatibili con lo stato corrente della computazione, dopo aver applicato le post condizioni passa alla fase successiva per trovare la futura azione da applicare. 
 
+Il problema è stato approssimato alla ricerca di un percorso all'interno di un grafo.
 Esistono diverse strategie per scegliere quale sia il migliore percorso da seguire per poter arrivare all'obiettivo del goal. La ricerca in profondità prevede di sfruttare la ricorsione per allontanarsi velocemente dalla radice dell'albero di decisione, ha il vantaggio di essere più efficiente a livello spaziale, ma al tempo stesso i piani che vengono generati non sono minimi.
 La ricerca in ampiezza al contrario sviluppa l'albero di decisione un livello alla volta, dando in output il percorso minimo per arrivare al goal, ma con lo svantaggio di dover mantenere in memoria i nodi che sono già stati attraversati.
 Una tecnica che riesce a sfruttare le caratteristiche di entrambe è la ricerca iterativa in profondità, in cui viene effettuata una DFS imponendo un limite di profondità massima, se non si è arrivati ad un piano completo si itera la ricerca, aumentando il limite.
@@ -432,12 +433,20 @@ La funzione \texttt{putOnTable} descrive l'azione di posizionare il blocco X sul
 % [grab(b1),put([b1,b2])]
 % [grab(b1),put([b1,b2]),grab(b1),putOnTable(b1),grab(b1),putOnTable(b1),grab(b1),putOnTable(b1)]
 
+\cleardoublepage
 
 \section*{Esercizio 3}
 
-\paragraph{Problema.} Il problema consiste nella creazione di un interprete in grado di comprendere e processare frasi in linguaggio naturale riguardanti la posizione di blocchi su un tavolo.Il programma implementa questo attraverso un parser che converte la frase in un albero sintattico astratto (AST) e successivamente lo semplifica nella forma logica finale, utilizzando regole di inferenza per identificare gli oggetti in base alle loro proprietà.
+\paragraph{Problema.} Il problema consiste nella creazione di un interprete capace di comprendere e processare frasi in linguaggio naturale riguardanti la posizione di blocchi su un tavolo. Il programma raggiunge questo obiettivo attraverso un parser che converte la frase in un albero sintattico astratto (AST) e, successivamente, semplifica tale struttura nella sua forma logica finale. Questo processo avviene utilizzando regole di inferenza per identificare gli oggetti in base alle loro proprietà. Infine, sarà possibile analizzare l'AST e rispondere a domande poste dall'utente.
 
-\paragraph{Metodo.}
+\paragraph{Metodo.} La creazione dell'interprete, basato su un albero di sintassi astratta, richiede di suddividere il problema in due sotto-problemi principali: \begin{itemize} 
+\item Un parser, definito tramite il predicato tell/2, capace di interpretare le frasi di input e generare un albero di sintassi astratta, dal quale derivare i fatti relativi al micromondo. 
+\item Un ragionatore, in grado di utilizzare i fatti del micromondo per comporre frasi coerenti sulle informazioni in suo possesso. 
+\end{itemize}
+
+Per semplificare lo sviluppo del parser, si utilizzerà un micromondo che segue la grammatica inglese. Un micromondo è un ambiente limitato, con regole ben definite; in questo caso, si adotterà l’ambiente dei blocchi, già noto dai precedenti esercizi.
+
+L'output del parser sarà nel medesimo formato della base di conoscenza utilizzata nel ragionatore per la pianificazione dell'esercizio 2. In un possibile approfondimento successivo, si potrebbero integrare parser e pianificatore per consentire l'inserimento in linguaggio naturale delle informazioni necessarie a individuare un percorso nel mondo dei blocchi.
 
 \paragraph{Strutture dati.} La principale struttura dati utilizzata nell'esercizio è l'albero di sintassi astratta (AST in Inglese) che consiste in un albero binario gerarchico dove viene rappresentato il modo astratto la sintassi del testo che gli viene dato come input.
 
@@ -493,7 +502,151 @@ Questa struttura può essere rappresentata graficamente come un albero:
 \label{fig:ast_structure}
 \end{figure}
 
-\paragraph{Funzioni.}
+
+\paragraph{Funzioni.} Le funzioni che vengono esposte all'utente sono tell e ask. La prima permette di partire da una frase per arrivare ad un insieme di fatti, la seconda partendo da un insieme di fatti e una domanda permette di ottenere una risposta rispetto al micro mondo che viene descritto dal programma.
+
+Le 2 funzioni che verranno esposte all'utente saranno tell/2 e ask/2. In entrambe le funzioni la prima lista di inuit riguarda la i fatti del mondo che si conoscono fino a quel momento, la seconda conterrà una nuova frase che dovrà essere analizzata. Nel caso della della ask bisognerà dare in output nuovi fatti e nel caso della ask bisognerà rispondere con una frase composta da termini.
+
+\begin{lstlisting}
+tell(KnowledgeBase, Sentence) = 
+    tell1(KnowledgeBase,Sentence)
+
+ask(KnowledgeBase, Question) = 
+    ask1(KnowledgeBase, Question)
+\end{lstlisting}
+
+Entrambe le funzioni riportano a 2 funzioni private che implementeranno le funzionalità delle ask e tell. Alla base delle 2 funzioni, come visto nel paragrafo relativa alle strutture dati utilizzate in questo esercizio, è presente una funzione che ha come obiettivo la creazione dell'albero di sintassi astratta basata sull'inglese. 
+
+\begin{lstlisting}
+ᐅ AST ᐅa([the, block,is, on, the, table])
+a(A) = R
+    if np(A) = R1, vp(R1) = R
+ᐅ Noun Phrase
+np(NP) = R
+    if det(NP) = R1, n(R1) = R
+ᐅ Verb Phrase
+vp(VP) = R
+    if abe(VP) = R1, pp(R1) = R
+ᐅ Prepositional Phrase
+pp(PP) = R
+    if PP = [on | R1], np(R1) = R
+abe([B | R]) = R
+    if be(B)
+ᐅ Determiner
+det([D | R]) = R
+    if determiner(D)
+ᐅ Noun Phrase
+n([N | R]) = R
+    if noun(N)
+n(N) = R
+    if N = [A, R1 | R], adj(A), noun(R1) 
+\end{lstlisting}
+
+Questa prima versione ha come obiettivo quello di restituire come output la lista vuota, se viene riconosciuta tutta la frase, oppure una lista con all'interno la porzione della frase rimanente che non è stata riconosciuta nel processo di analisi.
+
+\begin{lstlisting}
+ᐅ AST a([the, block,is, on, the, table])
+a(A) = vp(R1, ASTN)
+    if [R1, ASTN] = np(A)
+c(C) = vp
+ᐅ Noun Phrase
+np([the | R1]) = n(R1)
+ᐅ Verb Phrase
+vp([is, on | N], ASTS) = [R, on(ASTS, ASTN)]
+    if [R, ASTN] = np(N)
+ᐅ Noun Phrase
+n([N | R]) = [R, object(C, [])]
+    if noun(C, N)
+n(N) = [R, object(C, [attribute(T, A)])]
+    if N = [A, L | R], adj(T, A), noun(C, L) 
+\end{lstlisting}
+
+Questa seconda versione ha come output l'albero di sintassi astratta con anche la possibilità di inserire aggettivi come colori e dimensioni. Tali aggettivi devono essere aggiunti tramite predicati come.
+
+\begin{lstlisting}
+ᐅ adj/2
+adj(color, yellow)
+adj(color, blue)
+adj(color, red)
+adj(size, small)
+adj(size, large)
+\end{lstlisting}
+
+La tell/2 accetterà frasi del tipo:
+
+\[
+[[ \texttt{b1}, \texttt{is}, \texttt{on}, \texttt{the}, \texttt{table}, \texttt{'.'} ]]
+\]
+
+
+
+Queste frasi dovranno passare da un processo di preprocessing per eliminare il punto finale ed essere alaborate dalla funzione che crea l'albero di sintassi astratta
+
+\begin{lstlisting}
+ᐅ tell1
+tell1(KnowledgeBase, Sentence) = simplify_ast(AST)
+    if SentenceWithoutPeriod = remove_period(Sentence),
+       AST = a(SentenceWithoutPeriod)
+\end{lstlisting}
+
+La funzione simplify\_ast/1 prende in input l'albero di sintassi astratta e produce l'ouput che verrà mostrato dalla funzione tell1/2. Per esempio nel caso della precedente esempio sarà sufficiente una funzione come la seguente.
+
+\begin{lstlisting}
+ᐅsimplify_ast/1
+simplify_ast([[],on(object(X,[]),object(table,[]))]) = 
+    [onTable(X)]
+\end{lstlisting}
+
+Se gli input presentano degli aggettivi come i colori dei blocchi e le loro dimensioni si possono usare più casi della funzione simplify\_ast/1 per catturare ogni evenienza.
+
+\begin{lstlisting}
+ᐅsimplify_ast/1
+simplify_ast([[],
+              on(object(Obj,[attribute(color,COLOR)]),
+              object(table,[]))]) = 
+    [onTable(Blocco), color(Blocco, COLOR)]
+    if blocchi_generici(Obj),  
+        blocks(Blocco), 
+        color(Blocco) = COLOR
+        
+ᐅsimplify_ast/1
+simplify_ast([[],
+              on(object(Obj,[attribute(size,SIZE)]),
+              object(table,[]))]) = 
+     [onTable(Blocco), size(Blocco, SIZE)]
+     if blocchi_generici(Obj),  
+     blocks(Blocco), size(Blocco) = SIZE
+\end{lstlisting}
+
+LE versioni più semplici della funzione ask cercano hanno il computo di cercare all'interno della base di conoscenza le informazioni necessarie per finire le frasi.
+
+\begin{lstlisting}
+ᐅask1/2
+ask(KnowledgeBase, [where, is, Object, '?']) = 
+    [Object, is, on, the, table, '.']
+    if member(KnowledgeBase, onTable(Object))
+
+ᐅask1/2
+ask(KnowledgeBase, [what, color, is, Object, '?']) = 
+    [Object, is, Color, '.']
+    if member(KnowledgeBase, color(Object, Color))
+
+ᐅask1/2
+ask(KnowledgeBase, [where, is, Object2, '?']) = 
+    [Object2, is, on, Object1, '.']
+    if member(KnowledgeBase, on(Object1, Object2)), 
+    Object1 ≠ Object2
+\end{lstlisting}
+
+Questa base di partenza permette di scrivere predicati in cui tell e ask sono annidati una dentro l'altra, la prima fornisce alla seconda le informazioni necessarie per scrivere le risposte.
+
+
+\[
+\text{ask}(\text{tell}([], [\texttt{b1}, \texttt{is}, \texttt{on}, \texttt{the}, \texttt{table}, \texttt{'.'}]), [\texttt{where}, \texttt{is}, \texttt{b1}, \texttt{'?'}]) = [\texttt{b1}, \texttt{is}, \texttt{on}, \texttt{the}, \texttt{table}, \texttt{'.'}]
+\]
+
+
+
 \paragraph{Esempi.}
 
 % a([b1, is, on, the, table]) = [[],on(object(b1,[]),object(table,[]))]
@@ -502,10 +655,82 @@ Questa struttura può essere rappresentata graficamente come un albero:
 % tell([], [b1, is, on, the, table, '.'])
 % ask(tell([], [b1, is, on, the, table, '.']), [where, is, b1, '?'])
 
+\cleardoublepage
+
+\section*{Esercizio 4}
+
+\paragraph{Problema.} L'obiettivo del problema è quello di creare un calcolatore simbolico in grado di manipolare espressioni matematiche simboliche, con particolare attenzione alle espressioni polinomiali multivariate e a funzionalità come somma, prodotto, derivazione.
+
+Il problema può essere affrontato tramite una rappresentazione densa e sparsa. Successivamente si vedrà una prima rappresentazione compatta a variabile singola, sparsa a variabile singola e sparsa multivariata.
+
+\subsection*{Polinomi in variabile singola}
+\paragraph{Rappresentazione:}
+\begin{itemize}
+    \item \textbf{Versione Densa}: Rappresentazione del polinomio tramite un array con coefficienti per ogni grado.\\
+    Esempio: \texttt{poly(x, 4, [4, 7, 0, 0, 9])} rappresenta il polinomio $4 + 7x + 9x^4$.
+    \item \textbf{Versione Sparsa}: Rappresentazione dei soli gradi con coefficienti diversi da zero.\\
+    Esempio: \texttt{poly(x, 4, [k(0, 4), k(1, 7), k(4, 9)])} rappresenta $4 + 7x + 9x^4$.
+\end{itemize}
+
+La prima implementazione è stata effettuata tramite il metodo denso dala la sua semplicità di implementazione grazie alla manipolazione delle liste offerta dai predicati implementabili nel linguaggio.
+
+\paragraph{Operazioni da supportare nel calcolatore:}
+\begin{itemize}
+    \item \textbf{Somma e Prodotto}: Definite simbolicamente con $+'(X, Y)$ e $*'(X, Y)$.
+    \item \textbf{Derivazione}: Calcolo della derivata rispetto a una variabile: $\text{diff}(X, x)$.
+\end{itemize}
+
+Per consentire al calcolatore simbolico di interpretare correttamente le espressioni simboliche inserite dall'utente, è necessario implementare un parser. Questo parser traduce i termini in input in un formato comprensibile dal calcolatore. L'implementazione prevede la riscrittura degli operatori \texttt{+}, \texttt{*} e \texttt{\textasciicircum} per gestire tutti i casi in cui è necessario interagire con il predicato \texttt{poly}.
+
+
+\subsection*{Polinomi in più variabili}
+\paragraph{Supporto:}
+\begin{itemize}
+    \item Polinomi con variabili multiple (es., $x$, $y$, $z$).
+    \item Ordinamento delle variabili per la manipolazione: \texttt{ord([x, y, z])} specifica l'ordine di priorità.
+\end{itemize}
+
+\paragraph{Esempi di rappresentazione:}
+\begin{itemize}
+    \item $x^3 + 5y - 1$ è rappresentato come:
+    \[
+    \text{poly}(x, [-1, \text{poly}(y, [0, 5]), 0, 1])
+    \]
+    \item $z^4 + 7x + y$ è rappresentato come:
+    \[
+    \text{poly}(x, [\text{poly}(y, [\text{poly}(z, [0, 0, 0, 0, 1]), 1]), 7])
+    \]
+\end{itemize}
+
+\paragraph{Metodo.} Descrizione degli algoritmi utilizzati per la risoluzione del problema.
+
+\paragraph{Strutture dati.} Descrizione delle strutture dati utilizzate. 
+
+\paragraph{Funzioni.} Descrizione delle funzioni realizzate specificando anche quali sono pubbliche e quali sono private.
+
+\paragraph{Esempi.} Descrizione di alcuni esempi di utilizzo.
+
+\cleardoublepage
+
+
+\section*{Esercizio 5}
+
+\paragraph{Problema.} Descrizione del problema affrontato.
+
+\paragraph{Metodo.} Descrizione degli algoritmi utilizzati per la risoluzione del problema.
+
+\paragraph{Strutture dati.} Descrizione delle strutture dati utilizzate. 
+
+\paragraph{Funzioni.} Descrizione delle funzioni realizzate specificando anche quali sono pubbliche e quali sono private.
+
+\paragraph{Esempi.} Descrizione di alcuni esempi di utilizzo.
+
+\cleardoublepage
+
 
 \section*{Appendice}
 \paragraph{Forward Chaining} Iniziando dai dati disponibili e usa le regole di inferenza per ricavare ulteriori dati fino al raggiungimento di un certo obiettivo. Un motore inferenziale che usa Forward Chaining ad ogni passo va alla ricerca delle regole di inferenza tali per cui la premessa è nota essere vera, dopodiché può dedurre la conseguenza e aggiungerla come nuovo dato a disposizione.
-\paragraph{Backward chaining} Iniziando da una lista di obiettivi (o ipotesi) e ragiona in modo inverso rispetto alla Forward Chaining, partendo dalle conseguenze delle regole di inferenza disponibili e verificando se le premesse sono note essere vere.
+\paragraph{Background Chaining} Iniziando da una lista di obiettivi (o ipotesi) e ragiona in modo inverso rispetto alla Forward Chaining, partendo dalle conseguenze delle regole di inferenza disponibili e verificando se le premesse sono note essere vere.
 
 \section*{Funzioni frequentemente utilizzate all'interno del documento}
 
@@ -598,6 +823,12 @@ not_in(X, [H | T]) = not_in(X, T)
     if X ≠ H
 \end{lstlisting}
 
+\paragraph{remove\_period/1}
+Funzione che prende in input una lista contenente dei termini ed elimina il punto finale se presente.
+\begin{lstlisting}
+remove_period(['.']) = []
+remove_period([X | Rest]) = [X | remove_period(Rest)]
+\end{lstlisting}
 Nei vari esercizi nel caso in cui venissero utilizzate funzioni private con la medesima firma non verranno riproposte una seconda volta e verrà utilizzato il precedente elenco come riferimento per la loro implementazione
 
 
