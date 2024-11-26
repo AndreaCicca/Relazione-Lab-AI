@@ -5,27 +5,19 @@
 
 '^'(X, Y) = poly(X, [k(Y, 1)]) if var(X), integer(Y)
 
-'+'(VAR, Number) = poly(VAR, [k(0, Number)]) if integer(Number), var(VAR)
-'+'(Number, VAR) = poly(VAR, [k(0, Number)]) if integer(Number), var(VAR)
+ᐅ Somma
 
-ᐅ Caso in cui sommo un poly con una varabiule
+toPoly(Number) = poly(x, [k(0, Number)])
+toPoly(VAR) = poly(VAR, [k(0, 1)])
+toPoly(poly(Var, Lista)) = promoteToX(poly(Var, Lista))
 
-ᐅ Aggiungere una regola per sommare un polinomio con un intero
-'+'(poly(Var, Lista), Intero) = 
-    poly(Var, NuovaLista) if 
-        integer(Intero),
-        NuovaLista = mergeSparse(Lista, [k(0, Intero)])
-
-'+'(Intero, poly(Var, Lista)) = 
-    poly(Var, NuovaLista) if 
-        integer(Intero),
-        NuovaLista = mergeSparse([k(0, Intero)], Lista)
+'+'(X, Y) = sum(toPoly(X), toPoly(Y))
 
 '+'(X, Y) = sum(X_promoted, Y_promoted)
     if isPoly(X),
     isPoly(Y),
-    X_promoted = promote(X),
-    Y_promoted = promote(Y)
+    X_promoted = promoteToX(X),
+    Y_promoted = promoteToX(Y)
 
 ᐅ caso simbolo + poly
 
@@ -43,19 +35,16 @@ var(x)
 var(y)
 var(z)
 
-ordinePrecedenza(x, _) = true
-ordinePrecedenza(y, x) = true
-ordinePrecedenza(y, z) = true
-
-order_var(x) = 1
-order_var(y) = 2
-order_var(z) = 3
-
-promote(poly(x, Lista)) = poly(x, Lista)
-promote(poly(y, Lista)) = poly(x, [k(0, poly(y, Lista))])
-promote(poly(z, Lista)) = poly(x, [k(0, poly(y, [k(0, poly(z, Lista))]))])
+promoteToX(poly(x, Lista)) = poly(x, Lista)
+promoteToX(poly(y, Lista)) = poly(x, [k(0, poly(y, Lista))])
+promoteToX(poly(z, Lista)) = poly(x, [k(0, poly(y, [k(0, poly(z, Lista))]))])
 
 isPoly(X) if X = poly(Var, Lista)
+
+ordinePrecedenza(x, y)
+ordinePrecedenza(x, z)
+ordinePrecedenza(y, z)
+
 
 
 ᐅ member/1
@@ -72,27 +61,12 @@ sum(poly(x, ListaX), poly(x, ListaY)) =
     poly(x, NuovaLista) if
         NuovaLista = mergeSparseMultivar(ListaX, ListaY)
 
-mergeSparse([], Lista) = Lista
-mergeSparse(Lista, []) = Lista
-mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
-    [k(E1,C1) | mergeSparse(T1, [k(E2,C2) | T2])] if E1 < E2
-mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
-    [k(E2,C2) | mergeSparse([k(E1,C1) | T1], T2)] if E2 < E1
-mergeSparse([k(E,C1) | T1], [k(E,C2) | T2]) = 
-    [k(E,C1 + C2) | mergeSparse(T1, T2)]
-
 mergeSparseMultivar([], Lista) = Lista
 mergeSparseMultivar(Lista, []) = Lista
 mergeSparseMultivar([k(E1, C1) | T1], [k(E2, C2) | T2]) = 
     [k(E1, C1) | mergeSparseMultivar(T1, [k(E2, C2) | T2])] if E1 < E2
-
 mergeSparseMultivar([k(E1, C1) | T1], [k(E2, C2) | T2]) = 
     [k(E2, C2) | mergeSparseMultivar([k(E1, C1) | T1], T2)] if E2 < E1
-
-mergeSparseMultivar([k(E, poly(Var, SubListaX)) | T1], [k(E, poly(Var, SubListaY)) | T2]) = 
-    [k(E, poly(Var, SommaSubListe)) | mergeSparseMultivar(T1, T2)] if
-        SommaSubListe = mergeSparseMultivar(SubListaX, SubListaY)
-
 mergeSparseMultivar([k(E, C1) | T1], [k(E, C2) | T2]) = 
     [k(E, C1 + C2) | mergeSparseMultivar(T1, T2)]
 
