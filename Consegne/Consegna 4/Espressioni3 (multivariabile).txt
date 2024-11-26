@@ -61,14 +61,14 @@ sum(poly(x, ListaX), poly(x, ListaY)) =
     poly(x, NuovaLista) if
         NuovaLista = mergeSparseMultivar(ListaX, ListaY)
 
-mergeSparseMultivar([], Lista) = Lista
-mergeSparseMultivar(Lista, []) = Lista
-mergeSparseMultivar([k(E1, C1) | T1], [k(E2, C2) | T2]) = 
-    [k(E1, C1) | mergeSparseMultivar(T1, [k(E2, C2) | T2])] if E1 < E2
-mergeSparseMultivar([k(E1, C1) | T1], [k(E2, C2) | T2]) = 
-    [k(E2, C2) | mergeSparseMultivar([k(E1, C1) | T1], T2)] if E2 < E1
-mergeSparseMultivar([k(E, C1) | T1], [k(E, C2) | T2]) = 
-    [k(E, C1 + C2) | mergeSparseMultivar(T1, T2)]
+mergeSparse([], Lista) = Lista
+mergeSparse(Lista, []) = Lista
+mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
+    [k(E1,C1) | mergeSparse(T1, [k(E2,C2) | T2])] if E1 < E2
+mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
+    [k(E2,C2) | mergeSparse([k(E1,C1) | T1], T2)] if E2 < E1
+mergeSparse([k(E,C1) | T1], [k(E,C2) | T2]) = 
+    [k(E,C1 + C2) | mergeSparse(T1, T2)]
 
 ᐅ Derivata
 diff(poly(x, Lista)) = 
