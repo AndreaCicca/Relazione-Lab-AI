@@ -1,7 +1,14 @@
-'^'(X, Y) = poly(X,[k(Y, 1)]) if var(X), integer(Y)
+ᐅ Somma
+ᐅ poly(x,[k(0,poly(y,[k(0,poly(z,[k(0,8),k(1,6)])),k(1,3)])),k(1,3),k(2,1)])
+
+ᐅ Da quardare: poly(y,[ k(0,4), k(1,7), k(4,9)]) + poly(y,[ k(0,4), k(1,7), k(4,9)]), non gli piace quando non comincia con x
+
+'^'(X, Y) = poly(X, [k(Y, 1)]) if var(X), integer(Y)
 
 '+'(VAR, Number) = poly(VAR, [k(0, Number)]) if integer(Number), var(VAR)
 '+'(Number, VAR) = poly(VAR, [k(0, Number)]) if integer(Number), var(VAR)
+
+ᐅ Caso in cui sommo un poly con una varabiule
 
 ᐅ Aggiungere una regola per sommare un polinomio con un intero
 '+'(poly(Var, Lista), Intero) = 
@@ -14,9 +21,11 @@
         integer(Intero),
         NuovaLista = mergeSparse([k(0, Intero)], Lista)
 
-'+'(X, Y) = sum(X, Y)
+'+'(X, Y) = sum(X_promoted, Y_promoted)
     if isPoly(X),
-    isPoly(Y)
+    isPoly(Y),
+    X_promoted = promote(X),
+    Y_promoted = promote(Y)
 
 ᐅ caso simbolo + poly
 
@@ -38,7 +47,15 @@ ordinePrecedenza(x, _) = true
 ordinePrecedenza(y, x) = true
 ordinePrecedenza(y, z) = true
 
-isPoly(X) = true if X = poly(Var, Lista)
+order_var(x) = 1
+order_var(y) = 2
+order_var(z) = 3
+
+promote(poly(x, Lista)) = poly(x, Lista)
+promote(poly(y, Lista)) = poly(x, [k(0, poly(y, Lista))])
+promote(poly(z, Lista)) = poly(x, [k(0, poly(y, [k(0, poly(z, Lista))]))])
+
+isPoly(X) if X = poly(Var, Lista)
 
 
 ᐅ member/1
