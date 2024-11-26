@@ -15,6 +15,8 @@
 
 \usepackage{tikz}
 
+\usepackage{float}
+
 \lstdefinelanguage{fabula}{
   keywordstyle=\textbf,
   keywords={div,if,mod},
@@ -429,6 +431,37 @@ La funzione \texttt{putOnTable} descrive l'azione di posizionare il blocco X sul
 
 \paragraph{Esempi.} 
 
+
+Esempi di operazioni con il piano di esecuzione.
+
+
+\begin{enumerate}
+    \item \textbf{Esempio 1: Somma di un polinomio con un valore costante}
+    \begin{itemize}
+        \item \texttt{x + 32} come risultato si ottiene  \texttt{poly(x,0,[k(0,32)])}
+        \item Descrizione: La somma di \( x \) con 32 risulta in un polinomio di grado 0 con coefficiente \( k(0, 32) \).
+    \end{itemize}
+    
+    \item \textbf{Esempio 2: Somma di due polinomi}
+    \begin{itemize}
+        \item \texttt{poly(x,0,[k(0,32)]) + poly(x,0,[k(0,32)])} come risultato si ottiene \texttt{poly(x,0,[k(0,64)])}
+        \item Descrizione: La somma di due polinomi \( poly(x, 0, [k(0,32)]) \) porta ad un nuovo polinomio di grado 0 con coefficiente \( k(0, 64) \).
+    \end{itemize}
+    
+    \item \textbf{Esempio 3: Prodotto di due polinomi}
+    \begin{itemize}
+        \item \texttt{poly(x,1,[k(0,2), k(1,2)]) * poly(x,1,[k(0,2), k(1,2)])} come risultato si ottiene \texttt{poly(x,2,[k(0,4),k(1,8),k(2,4)])}
+        \item Descrizione: Il prodotto di due polinomi di grado 1 produce un polinomio di grado 2, con i coefficienti risultanti dalla moltiplicazione dei termini dei polinomi originali.
+    \end{itemize}
+    
+    \item \textbf{Esempio 4: Derivata di un polinomio}
+    \begin{itemize}
+        \item \texttt{diff(poly(x,2,[k(0,1), k(1,2), k(2,4)]))} come risultato si ottiene \texttt{poly(x,1,[k(0,2),k(1,8)])}
+        \item Descrizione: La derivata di un polinomio di grado 2 porta ad un polinomio di grado 1 con coefficienti derivati dai termini del polinomio originale.
+    \end{itemize}
+\end{enumerate}
+
+
 % trace_limit( [clear(b1), onTable(b1), clear(b2), onTable(b2), empty],[on(b1, b2), empty], Piano, 10)
 % [grab(b1),put([b1,b2])]
 % [grab(b1),put([b1,b2]),grab(b1),putOnTable(b1),grab(b1),putOnTable(b1),grab(b1),putOnTable(b1)]
@@ -655,6 +688,21 @@ Questa base di partenza permette di scrivere predicati in cui tell e ask sono an
 % tell([], [b1, is, on, the, table, '.'])
 % ask(tell([], [b1, is, on, the, table, '.']), [where, is, b1, '?'])
 
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Operazione} & \textbf{Risultato} \\ \hline
+$a([b1, is, on, the, table])$ & $[[],on(object(b1,[]),object(table,[]))]$ \\ \hline
+$ask([onTable(b1)], [where, is, b1, '?'])$ & $[b1,is,on,the,table,'.]$ \\ \hline
+$ask([on(b1, b2)], [where, is, b2, '?'])$ & $[b2,is,on,b1,'.]$ \\ \hline
+$tell([], [b1, is, on, the, table, '.'])$ & (Nessun risultato specificato) \\ \hline
+$ask(tell([], [b1, is, on, the, table, '.']), [where, is, b1, '?'])$ & $[b1,is,on,the,table,'.]$ \\ \hline
+\end{tabular}
+\caption{Esempi di operazioni con la base di conoscenza}
+\end{table}
+
+
 \cleardoublepage
 
 \section*{Esercizio 4}
@@ -702,13 +750,267 @@ Per consentire al calcolatore simbolico di interpretare correttamente le espress
     \]
 \end{itemize}
 
-\paragraph{Metodo.} Descrizione degli algoritmi utilizzati per la risoluzione del problema.
+\paragraph{Metodo.} La prima versione del problema vede la risoluzione delle operazioni base da effettuare sui polinomi con la rappresentazione densa a singola variabile. Tale rappresentazione permette di effettuare con maggiore facilità operazioni di somma e prodotto grazie alla manipolazione delle liste, per facilitare l'approccio il grado viene mantenuto esplicito, successivamente potrebbe essere dedotto tramite funzioni come \texttt{size}.
+
+Per effettuare la somma è sufficiente calcolare quale sia il grado maggiore tra i 2 polinomi, estendere le loro liste se necessario ed effettuare la somma grado per grado.
+
+Nel prodotto il grado del polinomio risultante è dato dalla somma dei gradi dei due polinomi originali. Questo determina la lunghezza della lista dei coefficienti del risultato. Si crea una lista di zeri di lunghezza pari al grado massimo risultante più uno, rappresenta i coefficienti del polinomio risultante. Si itera su tutti i termini del primo polinomio e, per ciascuno di essi, si moltiplica il coefficiente per ciascun termine del secondo polinomio. Il prodotto ottenuto viene aggiunto al termine corrispondente nella lista dei coefficienti del risultato, posizionato all'indice corrispondente alla somma degli esponenti dei due termini moltiplicati. Questo processo viene ripetuto per tutti i termini del primo polinomio e del secondo polinomio, accumulando i valori dei coefficienti nella lista del risultato.
+
+Per la derivata è sufficiente iterare sui coefficienti e diminuire il grado del polinomio.
+
+Successivamente sono passato a una rappresentazione densa. Le operazioni sono simili, ma invece di utilizzare una lista per rappresentare i coefficienti del polinomio, sfrutto un predicato \(k(X, Y)\), dove \(X\) rappresenta il grado del polinomio e \(Y\) il valore del coefficiente corrispondente a quel grado. Una possibile variante potrebbe essere l'utilizzo di liste ricorsive al posto del predicato indicato.
+
+L'ultima versione del programma vede l'utilizzo delle operazioni di somma, prodotto e derivazione su una versione densa dei polinomi in più variabili.
+
 
 \paragraph{Strutture dati.} Descrizione delle strutture dati utilizzate. 
 
-\paragraph{Funzioni.} Descrizione delle funzioni realizzate specificando anche quali sono pubbliche e quali sono private.
+\paragraph{Funzioni.} All'utente finale vengono esposte funzioni il cui unico scopo è sovrascrivere gli operatori di default messi a disposizione da Fabula per la somma e il prodotto. L'idea è che l'utente possa le operazioni di base messe a disposizione come se fossero operazioni built-in del linguaggio. L'unico nuovo predicato esposto sarà quello dedicato alla derivazione, \( \texttt{diff/1} \).
+Successivamente vado a riportare le 3 implementazioni, ognuna presenterà in ordine gli quali operatori sono stati sovrascritti, la funzione per implementare la derivazione, le funzioni di somma/prodotto e se presenti ulteriori funzioni di supporto.
+
+\subparagraph{Densa ad una variabile}
+
+Sovrascrittura degli operatori
+
+Funzione per implementare l'operazione della derivazione
+
+\begin{lstlisting}
+diff(poly(x, Grado, Lista)) = 
+    poly(x, Grado - 1, ListaDerivata) if
+        ListaDerivata = diffList(Lista, 0)
+
+diffList([], _) = []
+diffList([H | T], Exp) = 
+    diffList(T, Exp + 1) if Exp = 0
+diffList([H | T], Exp) = 
+    [H * Exp | diffList(T, Exp + 1)] if Exp > 0
+\end{lstlisting}
+
+Funzioni private per l'implementazione della somma e prodotto.
+
+\begin{lstlisting}
+
+sum(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
+    poly(x, MaxGrado, SommaListe) if
+        MaxGrado = max(GradoX, GradoY),
+        ListaXEstesa = extend(ListaX, MaxGrado + 1),
+        ListaYEstesa = extend(ListaY, MaxGrado + 1),
+        SommaListe = sumLists(ListaXEstesa, ListaYEstesa)
+
+extend(Lista, Len) = Lista if length(Lista) = Len
+extend(Lista, Len) = extend([0 | Lista], Len) 
+                    if length(Lista) < Len
+
+
+prod(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
+    poly(x, GradoX + GradoY, ProdottoListe) if
+        LunghezzaRisultato = GradoX + GradoY + 1,
+        ListaZeri = createZeros(LunghezzaRisultato),
+        ProdottoListe = 
+            prodLists(ListaX, 0, ListaY, ListaZeri)
+
+createZeros(0) = []
+createZeros(N) = [0 | createZeros(N - 1)] if N > 0
+
+prodLists([], _, _, Acc) = Acc
+prodLists([H1 | T1], Exp1, Lista2, Acc) = 
+    prodLists(T1, Exp1 + 1, Lista2, NuovoAcc) if
+        TempAcc = prodSingleTerm(H1, Exp1, Lista2, 0, Acc),
+        NuovoAcc = TempAcc
+
+prodSingleTerm(_, _, [], _, Acc) = Acc
+prodSingleTerm(Coeff1, Exp1, [H2 | T2], Exp2, Acc) = 
+    prodSingleTerm(Coeff1, Exp1, T2, Exp2 + 1, NuovoAcc) if
+        Prodotto = Coeff1 * H2,
+        ExpTotale = Exp1 + Exp2,
+        NuovoAcc = updateAtIndex(Acc, ExpTotale, Prodotto)
+\end{lstlisting}
+
+Funzioni di supporto
+
+\begin{lstlisting}
+updateAtIndex([], _, _) = []
+updateAtIndex([H | T], 0, Val) = [H + Val | T]
+updateAtIndex([H | T], Idx, Val) = 
+    [H | updateAtIndex(T, Idx - 1, Val)] if Idx > 0
+
+sumLists([], []) = []
+sumLists([H1 | T1], [H2 | T2]) = 
+    [H1 + H2 | sumLists(T1, T2)]
+
+max(X, Y) = X if X > Y
+max(X, Y) = Y if Y > X
+max(X, Y) = X if X = Y
+
+isPoly(X) = true if X = poly(Var, Grad, Lista)
+\end{lstlisting}
+
+\subparagraph{Sparsa ad una variabile}
+
+Sovrascrittura degli operatori
+\begin{lstlisting}
+'^'(X, Y) = poly(x, Y, [k(Y, 1)]) if X = x, integer(Y)
+
+'+'(x, Number) = poly(x, 0, [k(0, Number)]) 
+    if integer(Number)
+'+'(Number, x) = poly(x, 0, [k(0, Number)]) 
+    if integer(Number)
+
+ᐅ Aggiungere una regola per sommare un polinomio con un intero
+'+'(poly(Var, Grado, Lista), Intero) = 
+    poly(Var, Grado, NuovaLista) if 
+        integer(Intero),
+        NuovaLista = mergeSparse(Lista, [k(0, Intero)])
+
+'+'(Intero, poly(Var, Grado, Lista)) = 
+    poly(Var, Grado, NuovaLista) if 
+        integer(Intero),
+        NuovaLista = mergeSparse([k(0, Intero)], Lista)
+
+'+'(X, Y) = Z if 
+    isPoly(X),
+    isPoly(Y),
+    Z = sum(X, Y)
+
+'*'(X, Y) = Z if 
+    isPoly(X),
+    integer(Y),
+    Z = prod(X, poly(x, 0, [k(0, Y)]))
+
+'*'(X, Y) = Z if 
+    isPoly(Y),
+    integer(X),
+    Z = prod(poly(x, 0, [k(0, X)]), Y)
+
+'*'(X, Y) = Z if 
+    Z = prod(X, Y),
+    isPoly(Z)
+\end{lstlisting}
+
+Funzione per implementare l'operazione della derivazione
+\begin{lstlisting}
+diff(poly(x, Grado, Lista)) = 
+    poly(x, Grado - 1, ListaDerivata) if
+        ListaDerivata = diffList(Lista)
+
+diffList([]) = []
+diffList([k(0,_) | T]) = diffList(T)
+diffList([k(E,C) | T]) = 
+    [k(E-1, C * E) | diffList(T)] if E > 0
+\end{lstlisting}
+
+Funzioni private per l'implementazione della somma e prodotto.
+\begin{lstlisting}
+sum(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
+    poly(x, MaxGrado, SommaListe) if
+        MaxGrado = max(GradoX, GradoY),
+        SommaListe = mergeSparse(ListaX, ListaY)
+
+
+mergeSparse([], Lista) = Lista
+mergeSparse(Lista, []) = Lista
+mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
+    [k(E1,C1) | mergeSparse(T1, [k(E2,C2) | T2])] if E1 < E2
+mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
+    [k(E2,C2) | mergeSparse([k(E1,C1) | T1], T2)] if E2 < E1
+mergeSparse([k(E,C1) | T1], [k(E,C2) | T2]) = 
+    [k(E,C1 + C2) | mergeSparse(T1, T2)]
+
+prod(poly(x, GradoX, ListaX), poly(x, GradoY, ListaY)) = 
+    poly(x, GradoX + GradoY, ProdottoListe) if
+        LunghezzaRisultato = GradoX + GradoY + 1,
+        ListaZeri = createZerosK(LunghezzaRisultato, 0),
+        ProdottoListe = prodLists(ListaX, ListaY, ListaZeri)
+
+
+
+prodLists([], _, Acc) = Acc
+prodLists([k(E1,C1) | T1], Lista2, Acc) = 
+    prodLists(T1, Lista2, NuovoAcc) if
+        TempAcc = prodSingleTerm(k(E1,C1), Lista2, Acc),
+        NuovoAcc = TempAcc
+
+prodSingleTerm(_, [], Acc) = Acc
+prodSingleTerm(k(E1,C1), [k(E2,C2) | T2], Acc) = 
+    prodSingleTerm(k(E1,C1), T2, NuovoAcc) if
+        Prodotto = C1 * C2,
+        ExpTotale = E1 + E2,
+        NuovoAcc = updateAtIndexK(Acc, ExpTotale, Prodotto)
+\end{lstlisting}
+
+Le funzioni di supporto
+\begin{lstlisting}
+createZerosK(0, _) = []
+createZerosK(N, Curr) = 
+    [k(Curr,0) | createZerosK(N - 1, Curr + 1)] if N > 0
+
+updateAtIndexK([], _, _) = []
+updateAtIndexK([k(E,C) | T], E, Val) = [k(E,C + Val) | T]
+updateAtIndexK([k(E,C) | T], Idx, Val) 
+    = [k(E,C) | updateAtIndexK(T, Idx, Val)] if E < Idx
+
+max(X, Y) = X if X > Y
+max(X, Y) = Y if Y > X
+max(X, Y) = X if X = Y
+\end{lstlisting}
+
+\subparagraph{Sparsa a più di una variabile}
 
 \paragraph{Esempi.} Descrizione di alcuni esempi di utilizzo.
+
+\subparagraph{Densa a una variabile}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Operazione} & \textbf{Risultato} \\ \hline
+$\texttt{poly(x,0,[10]) + poly(x,0,[10])}$ & $\texttt{poly(x,0,[20])}$ \\ \hline
+$\texttt{poly(x,0,[10]) * poly(x,0,[10])}$ & $\texttt{poly(x,0,[100])}$ \\ \hline
+$\texttt{poly(x,1,[10, 10]) * poly(x,0,[10])}$ & $\texttt{poly(x,1,[100,100])}$ \\ \hline
+$\texttt{poly(x,4,[0,0,0,1]) + poly(x,4,[0,0,0,1])}$ & $\texttt{poly(x,4,[0,0,0,0,2])}$ \\ \hline
+$\texttt{poly(x,4,[1,0,0,1]) + poly(x,4,[9,0,0,1])}$ & $\texttt{poly(x,4,[0,10,0,0,2])}$ \\ \hline
+$\texttt{poly(x,4,[1,2,3,4]) * poly(x,4,[1,2,3,4])}$ & $\texttt{poly(x,8,[1,4,10,20,25,24,16,0,0])}$ \\ \hline
+$\texttt{diff(poly(x,4,[1,2,3,4]))}$ & $\texttt{poly(x,3,[2,6,12])}$ \\ \hline
+\end{tabular}
+\caption{Esempi di operazioni sui polinomi}
+\label{tab:operazioni-polinomi}
+\end{table}
+
+\subparagraph{Sparsa a una variabile}
+
+
+\begin{enumerate}
+    \item \textbf{Esempio 1: Somma di un polinomio con un valore costante}
+    \begin{itemize}
+        \item \texttt{x + 32} come risultato si ottiene \texttt{poly(x,0,[k(0,32)])}
+        \item Descrizione: La somma di \( x \) con 32 risulta in un polinomio di grado 0 con coefficiente \( k(0, 32) \).
+    \end{itemize}
+    
+    \item \textbf{Esempio 2: Somma di due polinomi}
+    \begin{itemize}
+        \item \texttt{poly(x,0,[k(0,32)]) + poly(x,0,[k(0,32)])} come risultato si ottiene \\ \texttt{poly(x,0,[k(0,64)])}
+        \item Descrizione: La somma di due polinomi \( poly(x, 0, [k(0,32)]) \) porta ad un nuovo polinomio di grado 0 con coefficiente \( k(0, 64) \).
+    \end{itemize}
+    
+    \item \textbf{Esempio 3: Prodotto di due polinomi}
+    \begin{itemize}
+        \item \texttt{poly(x,1,[k(0,2), k(1,2)]) * poly(x,1,[k(0,2), k(1,2)])} come risultato si ottiene \texttt{poly(x,2,[k(0,4),k(1,8),k(2,4)])}
+        \item Descrizione: Il prodotto di due polinomi di grado 1 produce un polinomio di grado 2, con i coefficienti risultanti dalla moltiplicazione dei termini dei polinomi originali.
+    \end{itemize}
+    
+    \item \textbf{Esempio 4: Derivata di un polinomio}
+    \begin{itemize}
+        \item \texttt{diff(poly(x,2,[k(0,1), k(1,2), k(2,4)]))} come risultato si ottiene \\ \texttt{poly(x,1,[k(0,2),k(1,8)])}
+        \item Descrizione: La derivata di un polinomio di grado 2 porta ad un polinomio di grado 1 con coefficienti derivati dai termini del polinomio originale.
+    \end{itemize}
+\end{enumerate}
+
+% x+32 -> poly(x,0,[k(0,32)])
+% poly(x,0,[k(0,32)]) + poly(x,0,[k(0,32)]) -> poly(x,0,[k(0,64)])
+% poly(x,1,[k(0,2), k(1,2)]) * poly(x,1,[k(0,2), k(1,2)]) -> poly(x,2,[k(0,4),k(1,8),k(2,4)])
+%diff(poly(x,2,[k(0,1), k(1,2), k(2,4)])) -> poly(x,1,[k(0,2),k(1,8)])
+\subparagraph{Sparsa a più di una variabile}
 
 \cleardoublepage
 
