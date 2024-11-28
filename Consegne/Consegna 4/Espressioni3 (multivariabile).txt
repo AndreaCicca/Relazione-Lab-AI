@@ -61,14 +61,6 @@ sum(poly(x, ListaX), poly(x, ListaY)) =
     poly(x, NuovaLista) if
         NuovaLista = mergeSparseMultivar(ListaX, ListaY)
 
-mergeSparse([], Lista) = Lista
-mergeSparse(Lista, []) = Lista
-mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
-    [k(E1,C1) | mergeSparse(T1, [k(E2,C2) | T2])] if E1 < E2
-mergeSparse([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
-    [k(E2,C2) | mergeSparse([k(E1,C1) | T1], T2)] if E2 < E1
-mergeSparse([k(E,C1) | T1], [k(E,C2) | T2]) = 
-    [k(E,C1 + C2) | mergeSparse(T1, T2)]
 
 ᐅ Derivata
 diff(poly(x, Lista)) = 
@@ -86,3 +78,45 @@ diffListMultivar([k(E, poly(Var, SubLista)) | T]) =
     [k(E-1, poly(Var, SubListaDerivata)) | diffListMultivar(T)] if
         SubListaDerivata = diffListMultivar(SubLista),
         E > 0
+
+
+mergeSparseMultivar([], Lista) = Lista
+mergeSparseMultivar(Lista, []) = Lista
+mergeSparseMultivar([k(E,C1)], [k(E,C2)]) = [k(E, C1 + C2)]
+mergeSparseMultivar([k(E1,C1), k(E1,C2) | RestX], Lista) = 
+    mergeSparseMultivar([k(E1, C1 + C2) | RestX], Lista)
+mergeSparseMultivar(Lista, [k(E1,C1), k(E1,C2) | RestY]) = 
+    mergeSparseMultivar(Lista, [k(E1, C1 + C2) | RestY])
+mergeSparseMultivar([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
+    [k(E1,C1) | mergeSparseMultivar(T1, [k(E2,C2) | T2])] if E1 < E2
+mergeSparseMultivar([k(E1,C1) | T1], [k(E2,C2) | T2]) = 
+    [k(E2,C2) | mergeSparseMultivar([k(E1,C1) | T1], T2)] if E2 < E1
+mergeSparseMultivar([k(E,C1) | T1], [k(E,C2) | T2]) = 
+    [k(E, C1 + C2) | mergeSparseMultivar(T1, T2)]
+
+
+
+ᐅ Devo sistemare questa funzione perchè attualmente da in output [k(2,1),k(1,3),[[k(0,8),k(1,6)],k(1,3)]]
+
+extractCoefficients(poly(_, Lista)) = extractCoefficientsFromList(Lista)
+
+extractCoefficientsFromList([]) = []
+extractCoefficientsFromList([k(_,poly(_,SubLista)) | T]) = 
+    [extractCoefficientsFromList(SubLista) | extractCoefficientsFromList(T)]
+extractCoefficientsFromList([k(E,C) | T]) = 
+    [k(E,C) | extractCoefficientsFromList(T)]
+
+reverseLists(Lista) = reverseHelper(Lista, [])
+
+reverseHelper([], Acc) = Acc
+reverseHelper([H | T], Acc) = reverseHelper(T, [H | Acc])
+
+mergeTwoSparseMultivar([], []) = []
+mergeTwoSparseMultivar([H1 | T1], [H2 | T2]) = 
+    [Merged | Rest] if
+        Merged = mergeSparseMultivar(H1, H2),
+        Rest = mergeTwoSparseMultivar(T1, T2)
+mergeTwoSparseMultivar([H1 | T1], []) = [H1 | mergeTwoSparseMultivar(T1, [])]
+mergeTwoSparseMultivar([], [H2 | T2]) = [H2 | mergeTwoSparseMultivar([], T2)]
+
+ᐅ Creare la funzione che passando da [[k(2,1),k(1,3)],[[k(0,8),k(1,6)],k(1,3)]] mi crea il poly() corretto
