@@ -51,16 +51,6 @@ ordinePrecedenza(y, z)
 member([H | _]) = H
 member([_ | R]) = member(R)
 
-sum(poly(Var1, Lista1), poly(Var2, Lista2)) = 
-    poly(Var1, NuovaLista) if
-        Var1 ≠ Var2,
-        ordinePrecedenza(Var1, Var2),
-        NuovaLista = [k(0, poly(Var2, Lista2)) | Lista1]
-
-sum(poly(x, ListaX), poly(x, ListaY)) = 
-    poly(x, NuovaLista) if
-        NuovaLista = mergeSparseMultivar(ListaX, ListaY)
-
 
 ᐅ Derivata
 diff(poly(x, Lista)) = 
@@ -95,7 +85,6 @@ mergeSparseMultivar([k(E,C1) | T1], [k(E,C2) | T2]) =
     [k(E, C1 + C2) | mergeSparseMultivar(T1, T2)]
 
 
-
 ᐅ Devo sistemare questa funzione perchè attualmente da in output [k(2,1),k(1,3),[[k(0,8),k(1,6)],k(1,3)]]
 
 extractCoefficients(poly(_, Lista)) = extractCoefficientsFromList(Lista)
@@ -120,3 +109,60 @@ mergeTwoSparseMultivar([H1 | T1], []) = [H1 | mergeTwoSparseMultivar(T1, [])]
 mergeTwoSparseMultivar([], [H2 | T2]) = [H2 | mergeTwoSparseMultivar([], T2)]
 
 ᐅ Creare la funzione che passando da [[k(2,1),k(1,3)],[[k(0,8),k(1,6)],k(1,3)]] mi crea il poly() corretto
+
+
+
+ᐅ caso poly x + poly x
+sum(poly(x, Lista1), poly(x, Lista2) ) = poly(x, SumList)
+  if Coefficient1 = extractCoefficientsFromList(Lista1),
+ Coefficient2 = extractCoefficientsFromList(Lista2),
+ [SumList] = mergeTwoSparseMultivar([Coefficient1], [Coefficient2])
+
+ᐅ caso poly x-y + poly x-y
+sum( poly(x, [k(0, poly(y, ListaY1), ListaX1)]), poly(x, [k(0, poly(y, ListaY2), ListaX2)]) ) = 
+    poly(x, [k(0, poly(y, SumList), ListaX1)] )
+    if SumList = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaY1)], [extractCoefficientsFromList(ListaY2)])
+
+ᐅ caso poly x-y-z + poly x-y-z
+sum( poly(x, [k(0, poly(y, [k(0, poly(z, ListaZ1))]), ListaY1)]), poly(x, [k(0, poly(y, [k(0, poly(z, ListaZ2))]), ListaY2)]) ) = 
+    poly(x, [k(0, poly(y, [k(0, poly(z, SumList))]), ListaY1)] )
+    if SumList = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaZ1)], [extractCoefficientsFromList(ListaZ2)])
+
+ᐅ caso poly x + poly y
+sum( poly(x, ListaX), poly(y, ListaY) ) = 
+    poly(x, [k(0, poly(y, SumList))])
+    if SumList = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaX)], [extractCoefficientsFromList(ListaY)])
+
+ᐅ caso poly x + poly z 
+sum( poly(x, ListaX), poly(z, ListaZ) ) = 
+    poly(x, [k(0, poly(y, [k(0, poly(z, SumList))]))])
+    if SumList = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaX)], [extractCoefficientsFromList(ListaZ)])
+
+ᐅ caso poly y + poly z
+sum( poly(y, ListaY), poly(z, ListaZ) ) = 
+    poly(x, [k(0, poly(y, [k(0, poly(z, SumList))]))])
+    if SumList = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaY)], [extractCoefficientsFromList(ListaZ)])
+
+ᐅ caso poly x-y + poly x-z
+sum( poly(x, [k(0, poly(y, ListaY), ListaX1)]), poly(x, [k(0, poly(z, ListaZ), ListaX2)]) ) = 
+    poly(x, [k(0, poly(y, SumListY), ListaX1), k(0, poly(z, SumListZ), ListaX2)])
+    if SumListY = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaY)], [extractCoefficientsFromList(ListaX2)]),
+       SumListZ = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaX1)], [extractCoefficientsFromList(ListaZ)])
+
+ᐅ caso poly x-y + poly y-z
+sum( poly(x, [k(0, poly(y, ListaY1), ListaX)]), poly(y, [k(0, poly(z, ListaZ), ListaY2)]) ) = 
+    poly(x, [k(0, poly(y, SumListY), ListaX), k(0, poly(z, SumListZ), ListaY2)])
+    if SumListY = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaY1)], [extractCoefficientsFromList(ListaY2)]),
+       SumListZ = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaX)], [extractCoefficientsFromList(ListaZ)])
+
+ᐅ caso polu x-z è  poly y
+
+sum( poly(x, [k(0, poly(z, ListaZ), ListaX)]), poly(y, ListaY) ) = 
+    poly(x, [k(0, poly(z, SumListZ), ListaX)])
+    if SumListZ = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaZ)], [extractCoefficientsFromList(ListaY)])
+
+ᐅ caso poly x-z + poly y-z
+sum( poly(x, [k(0, poly(z, ListaZ1), ListaX)]), poly(y, [k(0, poly(z, ListaZ2), ListaY)]) ) = 
+    poly(x, [k(0, poly(z, SumListZ), ListaX), k(0, poly(y, SumListY), ListaY)])
+    if SumListZ = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaZ1)], [extractCoefficientsFromList(ListaZ2)]),
+       SumListY = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaX)], [extractCoefficientsFromList(ListaY)])
