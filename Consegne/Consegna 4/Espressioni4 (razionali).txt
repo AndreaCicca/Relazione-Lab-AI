@@ -1,0 +1,39 @@
+
+'/'(X, Y) = rat(X,Y)
+    if integer(X), integer(Y)
+
+'/'(X, Y) = X * (1 / Y)
+    if isRat(X), isRat(Y)
+
+'/'(Number, rat(N, D)) = rat(Number * D, N)
+    if integer(Number), isRat(rat(N, D))
+
+'/'(rat(N, D), Number) = rat(N, D * Number)
+
+'*'(X, Y) = rat(NR, DR)
+    if isRat(X), isRat(Y),
+    X = rat(NX, DX),
+    Y = rat(NY, DY),
+    NR = NX * NY,
+    DR = DX * DY
+
+'*'(Number, rat(N, D)) = rat(Number * N, D)
+    if integer(Number), isRat(rat(N, D))
+
+
+mcd(A, 0) = A
+mcd(A, B) = mcd(B, A - B) if A > B
+mcd(A, B) = mcd(A, B - A) if B > A
+mcd(A, A) = A
+
+mcm(A, B) = (A*B) if mcd(A, B) = 1
+mcm(A, B) = (A * B) / mcd(A, B)
+
+'+'(X, Y) = rat(NR, DR)
+    if isRat(X), isRat(Y),
+    X = rat(NX, DX),
+    Y = rat(NY, DY),
+    DR = mcm(DX, DY),
+    NR = NX * (DR div DX) + NY * (DR div DY)
+
+isRat(rat(_, _))

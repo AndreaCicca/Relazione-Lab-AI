@@ -108,6 +108,10 @@ mergeTwoSparseMultivar([], [H2 | T2]) = [H2 | mergeTwoSparseMultivar([], T2)]
 ᐅ Creare la funzione che passando da [[k(2,1),k(1,3)],[[k(0,8),k(1,6)],k(1,3)]] mi crea il poly() corretto
 
 
+ᐅ caso poly x-y + z
+sum( poly(x, [k(0, poly(y, ListaY)), k(0,1)]), poly(z,ListaZ)) = 
+    poly(x, [k(0, poly(y, ListaY)), k(0,1), k(0, poly(z, ListaZ))])
+
 ᐅ caso poly x + poly x
 sum( poly(x, ListaX1), poly(x, ListaX2) ) = 
     poly(x, SumList)
@@ -154,11 +158,6 @@ sum( poly(x, [k(0, poly(y, ListaY1), ListaX)]), poly(y, [k(0, poly(z, ListaZ), L
     poly(x, [k(0, poly(y, SumListY), ListaX), k(0, poly(z, SumListZ), ListaY2)])
     if SumListY = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaY1)], [extractCoefficientsFromList(ListaY2)]),
        SumListZ = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaX)], [extractCoefficientsFromList(ListaZ)])
-
-ᐅ caso poly x-z + poly y-z
-sum( poly(x, [k(0, poly(z, ListaZ1), ListaX)]), poly(y, [k(0, poly(z, ListaZ2), ListaY)]) ) = 
-    poly(x, [k(0, poly(z, SumListZ), ListaX), k(0, poly(y, SumListY), ListaY)])
-    if SumListZ = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaZ1)], [extractCoefficientsFromList(ListaZ2)]),
 
 ᐅ caso poly x + poly y
 sum( poly(x, [ListaX]), poly(y, ListaY) )= 
