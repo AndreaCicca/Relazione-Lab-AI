@@ -37,3 +37,6 @@ mcm(A, B) = (A * B) / mcd(A, B)
     NR = NX * (DR div DX) + NY * (DR div DY)
 
 isRat(rat(_, _))
+
+toRat(Number) = rat(Number, 1) if integer(Number)
+toRat(rat(N, D)) = rat(N, D)
