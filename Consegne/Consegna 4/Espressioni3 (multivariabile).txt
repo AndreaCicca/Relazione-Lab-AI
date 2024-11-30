@@ -32,10 +32,6 @@ var(x)
 var(y)
 var(z)
 
-promoteToX(poly(x, Lista)) = poly(x, Lista)
-promoteToX(poly(y, Lista)) = poly(x, [k(0, poly(y, Lista))])
-promoteToX(poly(z, Lista)) = poly(x, [k(0, poly(y, [k(0, poly(z, Lista))]))])
-
 isPoly(X) if X = poly(Var, Lista)
 
 ordinePrecedenza(x, y)
@@ -126,8 +122,6 @@ sum( poly(y, ListaY1), poly(y, ListaY2) ) =
 sum( poly(z, ListaZ1), poly(z, ListaZ2) ) = 
     poly(z, SumList)
     if SumList = mergeTwoSparseMultivar([extractCoefficientsFromList(ListaZ1)], [extractCoefficientsFromList(ListaZ2)])
-
-
 
 ᐅ caso poly x-y + poly x-y
 sum( poly(x, [k(0, poly(y, ListaY1), ListaX1)]), poly(x, [k(0, poly(y, ListaY2), ListaX2)]) ) = 
