@@ -49,3 +49,7 @@ normalizeNot(P) = P
 - P = not(P)      if proposition(P)
 L + R = or(L, R)  if proposition(L), proposition(R)
 L * R = and(L, R) if proposition(L), proposition(R)
+
+'*'(X, Y) = and(X,Y)
+
+'*'(X, and(Y,Z)) = and(X,Y)*Z
