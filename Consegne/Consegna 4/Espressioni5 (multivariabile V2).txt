@@ -1,0 +1,146 @@
+ᐅ=========================
+ᐅ VARIABILI E PRECEDENZA
+ᐅ=========================
+
+ᐅ Indichiamo le variabili ammesse.
+var(x)
+var(y)
+var(z)
+
+ᐅ Ordine di precedenza: x > y > z
+ordinePrecedenza(x, y)
+ordinePrecedenza(x, z)
+ordinePrecedenza(y, z)
+
+
+ᐅ=========================
+ᐅ toPoly
+ᐅ=========================
+
+ᐅ Converte un qualunque input (numero, variabile o poly già pronto)
+ᐅ in un polinomio standard poly(Var, [k(e, coeff), ...]).
+
+toPoly(N) = poly(x, [k(0, N)])
+    if integer(N)
+
+toPoly(V) = poly(V, [k(0, 1)])
+    if var(V)
+
+toPoly(poly(Var, CoeffList)) = poly(Var, CoeffList)
+
+
+ᐅ=========================
+ᐅ '+' (entry point)
+ᐅ=========================
+
+ᐅ Somma due espressioni polinomiali X e Y, dopo averle convertite.
+'+'(X, Y) = Risultato
+    if PX = toPoly(X),
+       PY = toPoly(Y),
+       Risultato = sumPoly(PX, PY)
+
+
+ᐅ=========================
+ᐅ sumPoly
+ᐅ=========================
+
+ᐅ Somma di due polinomi poly(Var1, L1) e poly(Var2, L2).
+
+ᐅ Caso 1: stessa variabile esterna
+sumPoly(poly(Var, L1), poly(Var, L2)) = poly(Var, Merged)
+    if Var = Var,
+       Merged = mergeCoefficients(Var, L1, L2)
+
+ᐅ Caso 2: variabili esterne diverse, Var1 > Var2
+sumPoly(poly(Var1, L1), poly(Var2, L2)) = poly(Var1, Merged)
+    if Var1 ≠ Var2,
+       ordinePrecedenza(Var1, Var2),
+       ᐅ annido poly(Var2, L2) come coeff di grado 0
+       Merged = mergeCoefficients(Var1, L1, [k(0, poly(Var2, L2))])
+
+ᐅ Caso 3: variabili esterne diverse, Var2 > Var1
+sumPoly(poly(Var1, L1), poly(Var2, L2)) = poly(Var2, Merged)
+    if Var1 ≠ Var2,
+       ordinePrecedenza(Var2, Var1),
+       ᐅ annido poly(Var1, L1) come coeff di grado 0
+       Merged = mergeCoefficients(Var2, L2, [k(0, poly(Var1, L1))])
+
+
+ᐅ=========================
+ᐅ mergeCoefficients
+ᐅ=========================
+
+ᐅ Unisce due liste di termini [k(E, C)] in ordine di esponente crescente,
+ᐅ sommando i coefficienti quando E coincide.
+
+mergeCoefficients(_, [], L2) = L2
+mergeCoefficients(_, L1, []) = L1
+
+ᐅ Caso E1 == E2 => sommiamo i coefficienti
+mergeCoefficients(Var, [k(E, C1) | T1], [k(E, C2) | T2]) = [k(E, C3) | T3]
+    if C3 = sumCoefficient(C1, C2),
+       T3 = mergeCoefficients(Var, T1, T2)
+
+ᐅ Caso E1 < E2
+mergeCoefficients(Var, [k(E1, C1) | T1], [k(E2, C2) | T2]) = [k(E1, C1) | T3]
+    if E1 < E2,
+       T3 = mergeCoefficients(Var, T1, [k(E2, C2) | T2])
+
+ᐅ Caso E2 < E1
+mergeCoefficients(Var, [k(E1, C1) | T1], [k(E2, C2) | T2]) = [k(E2, C2) | T3]
+    if E2 < E1,
+       T3 = mergeCoefficients(Var, [k(E1, C1) | T1], T2)
+
+
+ᐅ=========================
+ᐅ sumCoefficient
+ᐅ=========================
+
+ᐅ Somma di due “coefficienti” C1 e C2,
+ᐅ che possono essere numeri o polinomi (in qualunque Var).
+
+ᐅ Caso A: entrambi numeri
+sumCoefficient(C1, C2) = S
+    if integer(C1),
+       integer(C2),
+       S = C1 + C2
+
+ᐅ Caso B: entrambi polinomi
+sumCoefficient(C1, C2) = S
+    if isPoly(C1),
+       isPoly(C2),
+       S = sumPoly(C1, C2)
+
+ᐅ Caso C: C1 intero, C2 polinomio
+sumCoefficient(C1, C2) = S
+    if integer(C1),
+       isPoly(C2),
+       VarC2 = polyVar(C2),
+       CoeffsC2 = polyCoeffs(C2),
+       ᐅ Converto l'intero C1 in un poly con la stessa var di C2
+       PolyC1 = poly(VarC2, [k(0, C1)]),
+       S = sumPoly(PolyC1, poly(VarC2, CoeffsC2))
+
+ᐅ Caso D: C2 intero, C1 polinomio
+sumCoefficient(C1, C2) = S
+    if integer(C2),
+       isPoly(C1),
+       VarC1 = polyVar(C1),
+       CoeffsC1 = polyCoeffs(C1),
+       ᐅ Converto l'intero C2 in un poly con la stessa var di C1
+       PolyC2 = poly(VarC1, [k(0, C2)]),
+       S = sumPoly(poly(VarC1, CoeffsC1), PolyC2)
+
+
+ᐅ=========================
+ᐅ PREDICATI DI SUPPORTO
+ᐅ=========================
+
+ᐅ Riconosce se X è poly(_, _)
+isPoly(poly(_, _))
+
+ᐅ Estrae la variabile principale di un poly
+polyVar(poly(Var, _)) = Var
+
+ᐅ Estrae la lista dei termini k(E, C)
+polyCoeffs(poly(_, CoeffList)) = CoeffList

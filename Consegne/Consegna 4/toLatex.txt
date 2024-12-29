@@ -1,0 +1,87 @@
+ᐅ=====================================================
+ᐅ  FILE: toLatex_singleVar
+ᐅ=====================================================
+
+ᐅ EVENTUALI DICHIARAZIONI
+var(x)
+integer(0)
+integer(1)
+ᐅ ... (se il tuo linguaggio richiede di dichiarare i numeri)
+ᐅ ... altrimenti ometti.
+
+ᐅ PREDICATO DI SUPPORTO PER RICONOSCERE LA FORMA poly(_, _)
+isPoly(poly(_, _))
+
+ᐅ=====================================================
+ᐅ toLatex( poly(x, CoeffList) )
+ᐅ=====================================================
+
+ᐅ Caso 1: polinomio vuoto
+toLatex(poly(x, [])) = "0"
+
+ᐅ Caso 2: polinomio con un solo termine
+toLatex(poly(x, [Term])) = Res
+    ᐅ Se la lista ha un solo elemento [Term],
+    ᐅ converti quel termine in stringa e basta.
+    if Res = toLatexTerm(Term)
+
+ᐅ Caso 3: polinomio con almeno due termini
+ᐅ [Term | RestOfTerms]
+toLatex(poly(x, [Term | Rest])) = Res
+    ᐅ Convertiamo il primo termine,
+    ᐅ poi ricorsivamente convertiamo il polinomio con i restanti termini,
+    ᐅ unendo con " + ".
+    if TermStr = toLatexTerm(Term),
+       RestStr = toLatex(poly(x, Rest)),
+       Res = TermStr + " + " + RestStr
+
+ᐅ=====================================================
+ᐅ toLatexTerm( k(E, C) )
+ᐅ=====================================================
+
+ᐅ Caso A: esponente = 0  => costante
+toLatexTerm( k(0, C) ) = StrC
+    ᐅ Stampa solo il coefficiente numerico.
+    if StrC = stringOfInt(C)
+
+ᐅ Caso B: esponente = 1  => Cx
+toLatexTerm( k(1, C) ) = Ris
+    if StrC = stringOfInt(C),
+       Ris = StrC + "x"
+
+ᐅ Caso C: esponente = E2 diverso da 0 e 1
+ᐅ    => Cx^{E2}
+toLatexTerm( k(E2, C) ) = Ris
+    ᐅ pattern matching: E2 non è 0 né 1
+    if E2 ≠ 0,
+       E2 ≠ 1,
+       StrC = stringOfInt(C),
+       StrE = stringOfInt(E2),
+       Ris = StrC + "x^{" + StrE + "}"
+
+ᐅ=====================================================
+ᐅ stringOfInt(N)
+ᐅ=====================================================
+ᐅ Funzione banale per convertire un intero in stringa.
+ᐅ Se il tuo linguaggio la fa implicitamente, puoi omettere.
+stringOfInt(0) = "0"
+stringOfInt(1) = "1"
+stringOfInt(2) = "2"
+stringOfInt(3) = "3"
+stringOfInt(4) = "4"
+stringOfInt(5) = "5"
+stringOfInt(6) = "6"
+stringOfInt(7) = "7"
+stringOfInt(8) = "8"
+stringOfInt(9) = "9"
+ᐅ ...
+ᐅ Oppure, se hai un meccanismo builtin, usa quello.
+
+pippo(_) = "3" + "4"
+
+ᐅ=====================================================
+ᐅ ESEMPIO DI UTILIZZO
+ᐅ=====================================================
+ᐅ Invoca: 
+ᐅ   toLatex(poly(x, [k(0,2), k(1,3), k(2,1)]))
+ᐅ Dovrebbe restituire: "2 + 3x + 1x^{2}".
