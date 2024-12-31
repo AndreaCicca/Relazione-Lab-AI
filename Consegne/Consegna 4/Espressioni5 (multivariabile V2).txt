@@ -14,33 +14,6 @@ ordinePrecedenza(y, z)
 
 
 ᐅ=========================
-ᐅ toPoly
-ᐅ=========================
-
-ᐅ Converte un qualunque input (numero, variabile o poly già pronto)
-ᐅ in un polinomio standard poly(Var, [k(e, coeff), ...]).
-
-toPoly(N) = poly(x, [k(0, N)])
-    if integer(N)
-
-toPoly(V) = poly(V, [k(0, 1)])
-    if var(V)
-
-toPoly(poly(Var, CoeffList)) = poly(Var, CoeffList)
-
-
-ᐅ=========================
-ᐅ '+' (entry point)
-ᐅ=========================
-
-ᐅ Somma due espressioni polinomiali X e Y, dopo averle convertite.
-'+'(X, Y) = Risultato
-    if PX = toPoly(X),
-       PY = toPoly(Y),
-       Risultato = sumPoly(PX, PY)
-
-
-ᐅ=========================
 ᐅ sumPoly
 ᐅ=========================
 
