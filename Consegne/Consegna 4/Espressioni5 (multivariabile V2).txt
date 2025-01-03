@@ -14,6 +14,61 @@ ordinePrecedenza(y, z)
 
 
 ᐅ=========================
+ᐅ productPoly
+ᐅ=========================
+
+productPoly(poly(Var, L1), poly(Var, L2)) = poly(Var, L3)
+    if L3 = productCoeffs(Var, L1, L2)
+
+productPoly(poly(Var1, L1), poly(Var2, L2)) = poly(Var1, L3)
+    if ordinePrecedenza(Var1, Var2),
+       L3 = productCoeffs(Var1, L1, [k(0, poly(Var2, L2))])
+
+productPoly(poly(Var1, L1), poly(Var2, L2)) = poly(Var2, L3)
+    if ordinePrecedenza(Var2, Var1),
+       L3 = productCoeffs(Var2, L2, [k(0, poly(Var1, L1))])
+
+productCoeffs(_, [], _) = []
+productCoeffs(_, _, []) = []
+productCoeffs(Var, [k(E1, C1)|T1], L2) = R
+    if A = multiplyTermList(E1, C1, L2),
+       B = productCoeffs(Var, T1, L2),
+       R = mergeCoefficients(Var, A, B)
+
+multiplyTermList(_, _, []) = []
+multiplyTermList(E1, C1, [k(E2, C2)|T2]) = [k(E, D)|T]
+    if E = E1 + E2,
+       D = productCoefficient(C1, C2),
+       T = multiplyTermList(E1, C1, T2)
+
+productCoefficient(C1, C2) = S
+    if integer(C1),
+       integer(C2),
+       S = C1 * C2
+
+productCoefficient(C1, C2) = S
+    if isPoly(C1),
+       isPoly(C2),
+       S = productPoly(C1, C2)
+
+productCoefficient(C1, C2) = S
+    if integer(C1),
+       isPoly(C2),
+       V2 = polyVar(C2),
+       L2 = polyCoeffs(C2),
+       P1 = poly(V2, [k(0, C1)]),
+       S = productPoly(P1, poly(V2, L2))
+
+productCoefficient(C1, C2) = S
+    if integer(C2),
+       isPoly(C1),
+       V1 = polyVar(C1),
+       L1 = polyCoeffs(C1),
+       P2 = poly(V1, [k(0, C2)]),
+       S = productPoly(poly(V1, L1), P2)
+
+
+ᐅ=========================
 ᐅ sumPoly
 ᐅ=========================
 
