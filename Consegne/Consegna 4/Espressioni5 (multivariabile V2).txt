@@ -172,3 +172,37 @@ polyVar(poly(Var, _)) = Var
 
 ᐅ Estrae la lista dei termini k(E, C)
 polyCoeffs(poly(_, CoeffList)) = CoeffList
+
+
+ᐅ=========================
+ᐅ Derivata
+ᐅ=========================
+
+diff(Var, poly(Var, Coeffs)) = poly(Var, Diffs)
+    if Diffs = differentiateCoeffs(Var, Coeffs)
+
+diff(Var, poly(Var2, _)) = 0
+    if Var ≠ Var2
+
+differentiateCoeffs(_, []) = []
+differentiateCoeffs(Var, [k(E, C) | T]) = R
+    if E > 0,
+       C1 = scalarProduct(E, C),
+       E1 = E - 1,
+       T1 = differentiateCoeffs(Var, T),
+       R = [k(E1, C1) | T1]
+differentiateCoeffs(Var, [k(E, _) | T]) = R
+    if E = 0,
+       R = differentiateCoeffs(Var, T)
+
+scalarProduct(_, 0) = 0
+scalarProduct(N, C) = M
+    if integer(C),
+       M = N * C
+scalarProduct(N, poly(V, Coeffs)) = poly(V, Coeffs1)
+    if Coeffs1 = scalarProductCoeffs(N, Coeffs)
+
+scalarProductCoeffs(_, []) = []
+scalarProductCoeffs(N, [k(E, C) | T]) = [k(E, C1) | T1]
+    if C1 = scalarProduct(N, C),
+       T1 = scalarProductCoeffs(N, T)
