@@ -3,17 +3,77 @@ var(y)
 var(z)
 
 toLatex(poly(Var, [])) = "0"
+
 toLatex(poly(Var, [Term])) = toLatexTerm(Term, Var)
-toLatex(poly(Var, [Term | Rest])) = 
+
+toLatex(poly(Var, [Term | Rest])) =
     toLatexTerm(Term, Var) + " + " + toLatex(poly(Var, Rest))
 
-toLatexTerm(k(0, C), _) = toLatexCoeff(C)
-toLatexTerm(k(1, C), Var) = toLatexCoeff(C) + varToString(Var)
-toLatexTerm(k(E2, C), Var) = 
-    toLatexCoeff(C) + varToString(Var) + "^{" + stringOfInt(E2) + "}"
+ᐅ---------------------------------------------
+ᐅ Stampa di un termine k(E, C) con variabile esterna Var
+ᐅ---------------------------------------------
+toLatexTerm(k(E, C), Var) = S
+    if isPoly(C),
+       ᐅ Se il coefficiente C è a sua volta un polinomio,
+       ᐅ distribuiamo Var^E sui termini di C e stampiamo
+       S = toLatexDistributed(E, Var, polyVar(C), polyCoeffs(C))
 
+toLatexTerm(k(0, C), _) = toLatexCoeff(C)
+
+toLatexTerm(k(1, C), Var) =
+    toLatexCoeff(C) + varToString(Var)
+
+toLatexTerm(k(E2, C), Var) =
+    toLatexCoeff(C)
+    + varToString(Var)
+    + "^{" + stringOfInt(E2) + "}"
+
+ᐅ---------------------------------------------
+ᐅ Stampa di un “coefficiente” se è un intero
+ᐅ oppure se è un poly(...) (ricorsione normale)
+ᐅ---------------------------------------------
 toLatexCoeff(C) = stringOfInt(C)
-toLatexCoeff(poly(Var, CoeffList)) = toLatex(poly(Var, CoeffList))
+
+toLatexCoeff(poly(Var, CoeffList)) =
+    toLatex(poly(Var, CoeffList))
+
+ᐅ---------------------------------------------
+ᐅ Distribuzione “manuale” di Var^E sui termini del polinomio annidato
+ᐅ Esempio: E=1, Var=x, poly(y, [k(3,4), k(1,1)])
+ᐅ => "4xy^3 + 1xy"
+ᐅ---------------------------------------------
+toLatexDistributed(_, _, _, []) = "0"
+
+toLatexDistributed(E, Var, SubVar, [k(SubE, SubC)]) =
+    subTerm(E, Var, SubE, SubC, SubVar)
+
+toLatexDistributed(E, Var, SubVar, [k(SubE, SubC) | Rest]) =
+    subTerm(E, Var, SubE, SubC, SubVar)
+    + " + "
+    + toLatexDistributed(E, Var, SubVar, Rest)
+
+ᐅ---------------------------------------------
+ᐅ subTerm(E, Var, SubE, SubC, SubVar)
+ᐅ Costruisce la stringa di un singolo “pezzo”:
+ᐅ   Coeff * x^E * SubVar^SubE
+ᐅ---------------------------------------------
+subTerm(E, Var, SubE, SubC, SubVar) =
+    stringOfInt(SubC)
+    + varExponent(Var, E)
+    + varExponent(SubVar, SubE)
+
+
+ᐅ---------------------------------------------
+ᐅ varExponent( x, 0 ) = ""       (nessuna variabile)
+ᐅ varExponent( x, 1 ) = "x"
+ᐅ varExponent( x, 3 ) = "x^3"
+ᐅ---------------------------------------------
+varExponent(_, 0) = ""
+varExponent(Var, 1) = varToString(Var)
+varExponent(Var, E) =
+    varToString(Var) + "^{" + stringOfInt(E) + "}"
+
+
 
 varToString(x) = "x"
 varToString(y) = "y"
@@ -29,3 +89,8 @@ stringOfInt(6) = "6"
 stringOfInt(7) = "7"
 stringOfInt(8) = "8"
 stringOfInt(9) = "9"
+
+isPoly(poly(_, _))
+
+polyVar(poly(Var, _)) = Var
+polyCoeffs(poly(_, Coeffs)) = Coeffs
