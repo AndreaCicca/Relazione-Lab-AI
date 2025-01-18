@@ -31,13 +31,22 @@ np1([the, Color, block | Rest]) = [Rest, object(B, [attribute(color, Color)])]
        color(B) = Color
 
 
+vp([is, red], object(B, Attrs)) 
+  = [[], color(object(B, Attrs), red)]
+
 vp([is, on, the, top, of | Rest], Obj) = [R, on(Obj, Target)]
     if [R, Target] = np2(Rest)
 
 vp([is, on | Rest], Obj) = [R, on(Obj, Target)]
     if [R, Target] = np2(Rest)
 
+vp([that,is, on | Rest], Obj) = [R, on(Obj, Target)]
+    if [R, Target] = np2(Rest)
+
 vp([is, over | Rest], Obj) = [R, over(Obj, Target)]
+    if [R, Target] = np2(Rest)
+
+vp([is, below | Rest], Obj) = [R, below(Obj, Target)]
     if [R, Target] = np2(Rest)
 
 
