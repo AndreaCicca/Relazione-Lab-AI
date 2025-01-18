@@ -1,56 +1,81 @@
-ᐅ Regola principale
-tell([], Sentence) = simplify_ast(AST)
-    if SentenceWithoutPeriod = remove_period(Sentence),
-       AST = a(SentenceWithoutPeriod)
 
-ᐅ Analisi principale
+
+adj(color, blue)
+adj(color, red)
+adj(color, green)
+
+adj(size, small)
+adj(size, large)
+
+
+blocks(b1)
+blocks(b2)
+blocks(b3)
+
+color(b1) = green
+color(b2) = blue
+color(b3) = red
+
+size(b1) = small
+size(b2) = small
+size(b3) = large
+
+
 a([the | Rest]) = vp(R1, ASTN)
     if [R1, ASTN] = np1([the | Rest])
 
-ᐅ Sintagmi nominali modificati per trovare il blocco specifico
+
 np1([the, Color, block | Rest]) = [Rest, object(B, [attribute(color, Color)])]
     if adj(color, Color),
        blocks(B),
        color(B) = Color
 
-ᐅ Gestione delle preposizioni
-vp([in, on | Rest], Obj) = [R, on(Obj, Target)]
+
+vp([is, on, the, top, of | Rest], Obj) = [R, on(Obj, Target)]
     if [R, Target] = np2(Rest)
 
-ᐅ Gestione del secondo sintagma nominale
+vp([is, on | Rest], Obj) = [R, on(Obj, Target)]
+    if [R, Target] = np2(Rest)
+
+vp([is, over | Rest], Obj) = [R, over(Obj, Target)]
+    if [R, Target] = np2(Rest)
+
+
+
 np2([the, table]) = [[], object(table, [])]
+
+
+np2([the, Size, block | Rest]) = [Rest, object(B, [attribute(size, Size)])]
+    if adj(size, Size),
+       blocks(B),
+       size(B) = Size
+
 
 ᐅ Utility
 remove_period(['.']) = []
 remove_period([X | Rest]) = [X | remove_period(Rest)]
 
-ᐅ Proprietà blocchi
-size(b1) = small
-size(b2) = small
-size(b3) = large
-color(b1) = green
-color(b2) = blue
-color(b3) = red
-
 ᐅ Regole blocchi
 blocks(X) = true
     if X = member([b1,b2,b3])
 
+ᐅ Regola principale
+tell([], Sentence) = simplify_ast(AST)
+    if SentenceWithoutPeriod = remove_period(Sentence),
+       AST = a(SentenceWithoutPeriod)
+
+
 ᐅ Verificare se un blocco ha un certo colore
 has_color(Block, Color) = true
     if color(Block) = Color
+
+
 
 ᐅ Regole AST modificate per usare il blocco specifico
 simplify_ast([[],on(object(B,[attribute(color,COLOR)]),object(table,[]))]) = [onTable(B), color(B, COLOR)]
     if blocks(B),
        color(B) = COLOR
 
-ᐅ Resto del codice di base necessario
-determiner(the)
-noun(block, block)
-noun(table, table)
-adj(color, blue)
-adj(size, small)
 
 ᐅ Funzioni di utilità
 member([H | _]) = H
