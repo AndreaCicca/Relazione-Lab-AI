@@ -22,6 +22,7 @@ trova_corrispondenza([Testa, Corpo]) = Corrispondenza
   Corrispondenza = member1(Lista, [Testa, Corpo])
 
 
+ᐅ Verticale
 clausola(arc(X,Y), [[arc(1,2),[]], [arc(1,3),[]], [arc(2,4),[]], [arc(3,4),[]] ])
 
 clausola(path(X,Y,R), [[path(X,Y,[X,Y]), [arc(X,Y)]], [path(X,Y,[X|R]), [arc(X,Z), path(Z,Y,R)]] ])
@@ -29,5 +30,3 @@ clausola(path(X,Y,R), [[path(X,Y,[X,Y]), [arc(X,Y)]], [path(X,Y,[X|R]), [arc(X,Z
 clausola(member(A,B), [[member(X, [X|_]), [cut]], [member(X, [_|L]), [member(X,L)]]])
 
 clausola(cut, [[cut, []]])
-
-ᐅ
