@@ -1,0 +1,42 @@
+goal([]) 
+goal([true])
+
+goal([H | R]) = goal(R) 
+  if Corrispondenza = trova_corrispondenza([H, _]), 
+  Corrispondenza = [H, B], 
+  H ≠ cut, 
+  goal(B)
+
+goal([cut | R]) = goal(R) if Corrispondenza = trova_corrispondenza([cut, _])
+
+goal([cut | _]) = stop
+
+print([H | R]) = trova_corrispondenza([H, _])
+
+member1([H |_], H) = H
+member1([_| T], H) = member1(T, H)
+
+trova_corrispondenza([Testa, Corpo]) = 
+  scansiona(Lista, [Testa, Corpo], avanti) 
+  if clausola(Testa, Lista)
+
+scansiona([], _, _) = fallito
+
+scansiona([[cut, []] | _], _, back) = cut
+
+scansiona([[cut, []] | Resto], Pred, avanti) = 
+    scansiona(Resto, Pred, avanti)
+
+scansiona([[H, B] | _], [Testa, Corpo], avanti) = 
+    [Testa, B] if H = Testa
+
+scansiona([[H, B] | Resto], [Testa, Corpo], avanti) = 
+    scansiona(Resto, [Testa, Corpo], avanti)
+
+scansiona(_, _, back) = cut
+
+clausola(arc(X,Y), [[arc(1,2),[]], [arc(1,3),[]], [arc(2,4),[]], cut, [arc(3,4),[]]])
+
+clausola(path(X,Y,R), [[path(X,Y,[X,Y]), [arc(X,Y)]], [path(X,Y,[X|R]), [arc(X,Z), path(Z,Y,R)]]])
+
+clausola(cut, [[cut, []]])
