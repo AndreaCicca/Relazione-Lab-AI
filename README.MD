@@ -3,6 +3,8 @@
 Le consegne sono state effettuate nel linguaggio logico funzionale custom chiamato Fabula.
 Per provare gli esepi si può andare sul sito [https://www.ailab.unipr.it/fabula/](https://www.ailab.unipr.it/fabula/)
 
+## Struttura del progetto
+```
 .
 ├── Consegne
 │   ├── Consegna 1
@@ -42,3 +44,4 @@ Per provare gli esepi si può andare sul sito [https://www.ailab.unipr.it/fabula
 ├── Laboratorio_di_Intelligenza_Artificiale.pdf
 ├── README.MD
 └── documentazione.txt
+```
